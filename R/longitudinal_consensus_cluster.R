@@ -1,0 +1,388 @@
+#' Longitudinal consensus clustering with flexmix
+#'
+#' This function performs longitudinal clustering with flexmix. To get robust
+#' results, the data is subsampled and the clustering is performed on this
+#' subsample. The results are combined in a consensus matrix and a final
+#' hierarchical clustering step performed on this matrix. In this, it follows
+#' the approach from the \code{ConsensusClusterPlus} package.
+#'
+#' @param data a \code{data.frame} with one or several observations per subject.
+#' It needs to contain one column that specifies to which subject the entry (row)
+#' belongs to. This ID column is specified in \code{id_column}. Otherwise, there
+#' are no restrictions on the column names, as the model is specified in
+#' \code{flexmix_formula}.
+#' @param id_column name (character vector) of the ID column in \code{data} to
+#' identify all observations of one subject
+#' @param maxK maximum number of clusters, default is \code{3}
+#' @param reps number of repetitions, default is \code{10}
+#' @param pItem fraction of samples contained in subsampled sample, default is
+#' \code{0.8}
+#' @param model_list either one \code{flexmix} driver or a list of \code{flexmix}
+#' drivers of class \code{FLXMR}
+#' @param flexmix_formula a \code{formula} object that describes the \code{flexmix}
+#' model
+#' @param title name of the clustering; used if \code{writeTable = TRUE}
+#' @param finalLinkage linkage used for the last hierarchical clustering step on
+#' the consensus matrix; has to be \code{average, ward.D, ward.D2, single, complete, mcquitty, median}
+#' or \code{centroid}. The default is \code{average}
+#' @param seed seed for reproducibility
+#' @param writeTable \code{boolean} if the log and the results should be written
+#' in a table. If \code{TRUE}, it creates a directory with the name of \code{title}.
+#' Default is \code{FALSE}
+#' @param verbose \code{boolean} if status messages should be displayed.
+#' Default is \code{FALSE}
+#'
+#' @return An object (list) of class \code{lcc} with length \code{maxk}.
+#' The first entry \code{general_information}
+#' contains a list with one entry \code{consensus_matrices} which is a list of all
+#' consensus matrices (for all specified clusters).
+#'
+#' The other entries correspond to the number of specified clusters (e.g. the
+#' second entry corresponds to 2 specified clusters) and each contains a list with the
+#' following entries:\tabular{ll}{
+#'    \code{consensusMatrix} \tab the consensus matrix \cr
+#'    \tab \cr
+#'    \code{consensusTree} \tab the result of the hierarchical clustering on the consensus matrix \cr
+#'    \tab \cr
+#'    \code{consensusClass} \tab the resulting class for every observation \cr
+#'    \tab \cr
+#'    \code{found_flexmix_clusters} \tab a vector of the actual found number of clusters by \code{flexmix} (which can deviate from the specified number)
+#' }
+#'
+#' @import checkmate
+#' @export
+#'
+#' @examples
+#' set.seed(5)
+#' test_data <- data.frame(patient_id = rep(1:10, each = 4),
+#' visit = rep(1:4, 10),
+#' var_1 = c(rnorm(20, -1), rnorm(20, 3)) + rep(seq(from = 0, to = 1.5, length.out = 4), 10),
+#' var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) + rep(seq(from = 1.5, to = 0, length.out = 4), 10))
+#' model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
+#' flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
+#' clustering <- longitudinal_consensus_cluster(
+#' data = test_data,
+#' id_column = "patient_id",
+#' maxK = 2,
+#' reps = 3,
+#' model_list = model_list,
+#' flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
+#' # not run
+#' # plot(clustering)
+#' # end not run
+longitudinal_consensus_cluster <- function(data = NULL,
+                                           id_column = NULL,
+                                           maxK = 3,
+                                           reps = 10,
+                                           pItem = 0.8,
+                                           model_list = NULL,
+                                           flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"),
+                                           title = "untitled_consensus_cluster",
+                                           finalLinkage = c("average", "ward.D", "ward.D2", "single", "complete",
+                                                            "mcquitty", "median", "centroid"),
+                                           seed = 3794,
+                                           writeTable = FALSE,
+                                           verbose = FALSE) {
+
+  # check variables
+  assert_count(seed, positive = TRUE)
+  set.seed(seed)
+
+  assert_character(id_column, len = 1, any.missing = FALSE)
+  assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = 1)
+  assert_choice(id_column, colnames(data))
+  assert_integerish(maxK, len = 1, lower = 2)
+  assert_count(reps, positive = TRUE)
+  assert_number(pItem, lower = 1 / nrow(data), upper = 1)
+  # model_list can be either a list of flexmix drivers or a single flexmix
+  # driver
+  assert(check_list(model_list, types = "FLXMR"), check_class(model_list, "FLXMR"))
+  assert_class(flexmix_formula, "formula")
+  assert_character(title, len = 1)
+  finalLinkage <- match.arg(finalLinkage)
+
+  # perform the longitudinal clustering to create the consensus matrices
+  results <- lcc_run(data = data,
+                     id_column = id_column,
+                     maxK = maxK,
+                     repCount = reps,
+                     pItem = pItem,
+                     model_list = model_list,
+                     flexmix_formula = flexmix_formula,
+                     verbose = verbose)
+
+  consensus_matrices <- results[["consensus_matrices"]]
+  flexmix_found_clusters <- results[["found_number_clusters"]]
+
+  res <- list()
+  if (writeTable && !file.exists(paste(title, sep = ""))) {
+    dir.create(paste(title, sep = ""))
+  }
+
+  log <- matrix(ncol = 2, byrow = T, c("title", title, "maxK",
+                                       maxK, "input data.frame rows", nrow(data),
+                                       "unique patients", length(unique(data[, id_column])),
+                                       "input data.frame columns", ncol(data), "number of bootstraps",
+                                       reps, "item subsampling proportion", pItem,
+                                       "final linkage type",
+                                       finalLinkage, "plot",
+                                       if (is.null(plot)) NA else plot, "seed", seed))
+  colnames(log) <- c("argument", "value")
+
+  if (writeTable) {
+    write.csv(file = paste(title, "/", title, ".log.csv",
+                           sep = ""), log, row.names = F)
+  }
+
+  # generate the consensus clustering on the consensus matrices
+  for (tk in 2:maxK) {
+    if (verbose) {
+      message(paste("consensus ", tk))
+    }
+    fm <- consensus_matrices[[tk]]
+    hc <- hclust(as.dist(1 - fm), method = finalLinkage)
+    if (verbose) {
+      message("clustered")
+    }
+    ct <- cutree(hc, tk)
+    names(ct) <- sort(unique(data[, id_column]))
+    c <- fm
+
+    res[[tk]] <- list(consensusMatrix = c,
+                      consensusTree = hc,
+                      consensusClass = ct,
+                      found_flexmix_clusters = flexmix_found_clusters[[tk]])
+  }
+
+  res[[1]] <- list(consensus_matrices = consensus_matrices)
+  names(res)[1] <- "general_information"
+
+  if (writeTable) {
+    for (i in 2:length(res)) {
+      write.csv(file = paste(title, "/", title, ".k=",
+                             i, ".consensusMatrix.csv", sep = ""), res[[i]]$consensusMatrix)
+      write.table(file = paste(title, "/", title, ".k=",
+                               i, ".consensusClass.csv", sep = ""), res[[i]]$consensusClass,
+                  col.names = F, sep = ",")
+    }
+  }
+
+  class(res) <- c("lcc", class(res))
+  return(res)
+}
+
+#' Main function to run the longitudincal clustering
+#'
+#' Internal function to actually perform the clustering
+#'
+#' @inheritParams longitudinal_consensus_cluster
+#'
+#' @import flexmix
+#'
+#' @return Returns a list with the following entries:\tabular{ll}{
+#'    \code{consensus_matrices} \tab a list of all consensus matrices where the kth entry is the consensus matrix for k specified numbers of clusters. The first entry is \code{NULL} \cr
+#'    \tab \cr
+#'    \code{found_number_clusters} \tab a list of vectors with the actual number of clusters found by \code{flexmix} where the kth entry is for k specified numbers of clusters. The first entry is \code{NULL}
+#' }
+lcc_run <- function(data,
+                    id_column,
+                    maxK,
+                    repCount,
+                    pItem,
+                    model_list,
+                    flexmix_formula,
+                    verbose) {
+  # internal function, therefore no input checks
+
+  m <- vector(mode = "list", repCount)
+  connectivity_results <- vector(mode = "list", maxK)
+  # get the number of unique patients
+  unique_patient_ids <- sort(unique(data[, id_column]))
+  n <- length(unique_patient_ids)
+  mCount <- mConsist <- matrix(0, ncol = n, nrow = n)
+  # be lazy and initialise the list with 0, because the first element corresponds
+  # to a cluster size of 1
+  connectivity_results[[1]] = 0
+  # initialise list for found number of clusters
+  found_number_clusters <- vector(mode = "list", maxK)
+
+  for (i in 1:repCount) {
+    if (verbose) {
+      message(paste("random subsample", i))
+    }
+    sample_x = sample_patients(data = data,
+                               pSamp = pItem,
+                               id_column = id_column)
+
+    # save the matrix how often a combination of 2 samples occurred
+    mCount <- connectivity_matrix(clusterAssignments = rep(1,
+                                                           length(sample_x[["sample_patients"]])),
+                                  current_matrix = mCount,
+                                  matrix_names = unique_patient_ids,
+                                  sampleKey = sample_x[["sample_patients"]])
+
+    # cluster the subsampled data
+    fitted_models <- stepFlexmix(formula = flexmix_formula,
+                                 data = sample_x[["subsample"]],
+                                 k = seq(from = 2, to = maxK, by = 1),
+                                 model = model_list,
+                                 nrep = 1)
+
+    for (k in seq(from = 2, to = maxK, by = 1)) {
+
+      if (i == 1) {
+        connectivity_results[[k]] <- mConsist
+      }
+
+      # extract the cluster assignments from flexmix
+      if (inherits(fitted_models, "stepFlexmix")) {
+        # when more than 1 cluster values are specified, the returned value is
+        # a stepFlexmix object and the models can be accessed by the cluster
+        # number
+        assignment_all_values <- fitted_models@models[[as.character(k)]]@cluster
+        # extract the actual found number of clusters (as flexmix might find
+        # a cluster solution with less clusters than specified)
+        actual_number_found_clusters <- fitted_models@models[[as.character(k)]]@k
+
+      } else if (inherits(fitted_models, "flexmix") && fitted_models@k == as.integer(k)) {
+        # if only one cluster value was used during fitting (i.e. only k=2)
+        assignment_all_values <- fitted_models@cluster
+        actual_number_found_clusters <- fitted_models@k
+      } else {
+        stop("Something went wrong with extracting the cluster assignments from the flexmix models")
+      }
+
+      merged_data <- data.frame(patient_id = sample_x[["subsample"]][, id_column],
+                                cluster = assignment_all_values)
+      # get the cluster assignment together with the corresponding ID
+      # only one value for every patient
+      merged_data <- merged_data[!duplicated(merged_data[, "patient_id"]), ]
+
+      # update the connectivity matrix
+      connectivity_results[[k]] <- connectivity_matrix(clusterAssignments = merged_data$cluster,
+                                                       current_matrix = connectivity_results[[k]],
+                                                       matrix_names = unique_patient_ids,
+                                                       sampleKey = merged_data$patient_id)
+      # store the found number of clusters
+      found_number_clusters[[k]] <- c(found_number_clusters[[k]],
+                                      actual_number_found_clusters)
+    }
+  }
+
+  # calculate the final consensus matrices
+  res <- vector(mode = "list", maxK)
+  for (k in 2:maxK) {
+    tmp = triangle(connectivity_results[[k]], mode = 3)
+    tmpCount = triangle(mCount, mode = 3)
+    res[[k]] = tmp / tmpCount
+    res[[k]][which(tmpCount == 0)] = 0
+  }
+
+  list(consensus_matrices = res,
+       found_number_clusters = found_number_clusters)
+}
+
+#' Plot a longitudinal consensus clustering
+#'
+#' @param x \code{lcc} object (output from \code{\linke{longitudinal_consensus_cluster}})
+#' @param tmyPal optional character vector of colors for consensus matrix
+#'
+#' @return Plots the following plots:\tabular{ll}{
+#'    \code{consensus matrix legend} \tab the legend for the following consensus matrix plots \cr
+#'    \tab \cr
+#'    \code{consensus matrix plot} \tab for every specified number of clusters, a heatmap of the consensus matrix and the result of the final clustering is shown \cr
+#'    \tab \cr
+#'    \code{consensus CDF} \tab a line plot of the CDFs for all different specified numbers of clusters \cr
+#'    \tab \cr
+#'    \code{Delta area} \tab elbow plot of the difference in the CDFs between the different numbers of clusters \cr
+#'    \tab \cr
+#'    \code{tracking plot} \tab cluster assignment of the subjects throughout the different cluster solutions
+#' }
+#'
+#' @importFrom checkmate assert_class assert_character
+#' @export
+plot.lcc <- function(x, tmyPal = NULL) {
+
+  assert_class(x, "lcc")
+  assert_character(tmyPal, null.ok = TRUE)
+
+  # set up the colour palette
+  colorList <- list()
+  colorM <- NULL
+  thisPal <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C",
+               "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6",
+               "#6A3D9A", "#FFFF99", "#B15928", "#bd18ea", "#2ef4ca",
+               "#f4cced", "#f4cc03", "#05188a", "#e5a25a", "#06f106",
+               "#85848f", "#000000", "#076f25", "#93cd7f", "#4d0776",
+               "#ffffff")
+
+  colBreaks <- NA
+  if (is.null(tmyPal)) {
+    colBreaks <- 10
+    tmyPal <- myPal(colBreaks)
+  }
+  else {
+    colBreaks <- length(tmyPal)
+  }
+
+  # plot the legend
+  sc <- cbind(seq(0, 1, by = 1 / colBreaks))
+  rownames(sc) <- sc[, 1]
+  sc <- cbind(sc, sc)
+  heatmap(sc,
+          Colv = NA,
+          Rowv = NA,
+          symm = FALSE,
+          scale = "none",
+          col = tmyPal,
+          na.rm = TRUE,
+          labRow = rownames(sc),
+          labCol = F,
+          main = "consensus matrix legend")
+
+  # plot the consensus matrices for every number of clusters
+  # for every cluster, calculate the correct colours for every observation
+  for (tk in seq(from = 2, to = length(x), by = 1)) {
+
+    c <- x[[tk]][["consensusMatrix"]]
+    hc <- x[[tk]][["consensusTree"]]
+    ct <- x[[tk]][["consensusClass"]]
+    found_flexmix_clusters <- x[[tk]][["found_flexmix_clusters"]]
+    median_found_flexmix_clusters <- median(found_flexmix_clusters)
+
+    if (tk == 2) {
+      past_ct <- NULL
+    } else {
+      past_ct <- x[[tk - 1]][["consensusClass"]]
+    }
+    colorList <- setClusterColors(past_ct,
+                                  ct,
+                                  thisPal,
+                                  colorList)
+    pc <- c
+    pc <- rbind(pc[hc$order, ], 0)
+
+    heatmap(pc,
+            Colv = as.dendrogram(hc),
+            Rowv = NA,
+            symm = FALSE,
+            scale = "none",
+            col = tmyPal,
+            na.rm = TRUE,
+            labRow = FALSE,
+            labCol = FALSE,
+            mar = c(5, 5),
+            main = paste("consensus matrix k=", tk, "; median flexmix clusters: ",
+                         median_found_flexmix_clusters, sep = ""),
+            ColSideCol = colorList[[1]])
+    legend("topright", legend = unique(ct), fill = unique(colorList[[1]]),
+           horiz = FALSE)
+
+    colorM <- rbind(colorM, colorList[[1]])
+  }
+
+  # plot the CDF, delta CDF and observation tracking plots
+  CDF(x[["general_information"]][["consensus_matrices"]])
+  n_last_element <- length(x)
+  clusterTrackingPlot(colorM[, x[[n_last_element]]$consensusTree$order])
+}

@@ -1,0 +1,223 @@
+#' Subsample subjects
+#'
+#' Internal function to subsample a fraction of \code{pSamp} subjects and
+#' return all observations belonging to these subjects. Adapted from
+#' \code{ConsensusClusterPlus}.
+#'
+#' @inheritParams longitudinal_consensus_cluster
+#' @param pSamp subsampling fraction, same as \code{pItem}
+#'
+#' @return List with the following entries:\tabular{ll}{
+#'    \code{subsample} \tab \code{data.frame} of the subsample \cr
+#'    \tab \cr
+#'    \code{sample_patients} \tab names from the \code{id_column} of the subsampled subjects
+#' }
+sample_patients <- function(data,
+                            pSamp,
+                            id_column) {
+  # as there are repeated measurements in the data, sample patients and then
+  # take all measurements from the sampled patients
+  space <- unique(data[, id_column])
+  space_dim <- length(space)
+  sampleN <- floor(space_dim * pSamp)
+  sample_patients <- sort(sample(space, sampleN, replace = FALSE))
+  index <- data[, id_column] %in% sample_patients
+  this_sample <- data[index, ]
+
+  list(subsample = this_sample, sample_patients = sample_patients)
+}
+
+#' Update connectivity matrix
+#'
+#' Internal function to update a matrix that stores information how often two
+#' samples have gotten the same cluster assignment.
+#' Adapted from \code{ConsensusClusterPlus}.
+#'
+#' @param clusterAssignments vector of cluster assignment for every subject
+#' @param current_matrix current connectivity matrix
+#' @param matrix_names vector of the names of the rows/columns of the
+#' connectivity matrix; usually the sorted unique names of the subjects
+#' @param sampleKey name of the subjects
+#'
+#' @return updated connectivity matrix
+connectivity_matrix <- function(clusterAssignments,
+                                current_matrix,
+                                matrix_names,
+                                sampleKey) {
+
+  names(clusterAssignments) <- sampleKey
+  # for every cluster, get the list of patient ids that belong to this cluster
+  cls <- lapply(unique(clusterAssignments), function(i) {
+    names(clusterAssignments[clusterAssignments %in% i])
+  })
+  for (i in 1:length(cls)) {
+    # check which rows/columns of the matrix (specified by matrix_names)
+    # belong to the same cluster
+    cl <- as.numeric(matrix_names %in% cls[[i]])
+    updt <- outer(cl, cl)
+    current_matrix <- current_matrix + updt
+  }
+  current_matrix
+}
+
+#' Generate triangle matrix
+#'
+#' Internal function to generate a triangle matrix; taken from \code{ConsensusClusterPlus}.
+#'
+#' @param m matrix
+#' @param mode flag which matrix should be returned; can be \code{1, 2} or \code{3}
+#'
+#' @return matrix; if \code{mode = 1} return the lower triangle as vector;
+#' if \code{mode = 2} return the transformed upper triangle (so that it is the lower one now)
+#' as a matrix with the rest of the entries as \code{NA}; if \code{mode = 3}
+#' return a matrix where the lower triangle is replaced by the upper triangle
+triangle <- function(m,
+                     mode = 1) {
+  n = dim(m)[1]
+  nm = matrix(0, ncol = n, nrow = n)
+  fm = m
+  nm[upper.tri(nm)] = m[upper.tri(m)]
+  fm = t(nm) + nm
+  diag(fm) = diag(m)
+  nm = fm
+  nm[upper.tri(nm)] = NA
+  diag(nm) = NA
+  vm = m[lower.tri(nm)]
+  if (mode == 1) {
+    return(vm)
+  }
+  else if (mode == 3) {
+    return(fm)
+  }
+  else if (mode == 2) {
+    return(nm)
+  }
+}
+
+#' Plot the CDFs of consensus clustering
+#'
+#' Internal function to plot the CDFs of the consensus solutions; taken
+#' from \code{ConsensusClusterPlus}.
+#'
+#' @param ml list of all consensus matrices
+#' @param breaks number of breaks
+#'
+#' @return a CDF plot
+CDF <- function(ml,
+                breaks = 100) {
+  plot(c(0), xlim = c(0, 1), ylim = c(0, 1), col = "white",
+       bg = "white", xlab = "consensus index", ylab = "CDF",
+       main = "consensus CDF", las = 2)
+  k = length(ml)
+  this_colors = rainbow(k - 1)
+  areaK = c()
+  for (i in 2:length(ml)) {
+    v = triangle(ml[[i]], mode = 1)
+    h = hist(v, plot = FALSE, breaks = seq(0, 1, by = 1/breaks))
+    h$counts = cumsum(h$counts)/sum(h$counts)
+    thisArea = 0
+    for (bi in 1:(length(h$breaks) - 1)) {
+      thisArea = thisArea + h$counts[bi] * (h$breaks[bi +
+                                                       1] - h$breaks[bi])
+      bi = bi + 1
+    }
+    areaK = c(areaK, thisArea)
+    lines(h$mids, h$counts, col = this_colors[i - 1], lwd = 2,
+          type = "l")
+  }
+  legend(0.8, 0.5, legend = paste(rep("", k - 1), seq(2, k,
+                                                      by = 1), sep = ""), fill = this_colors)
+  deltaK = areaK[1]
+  for (i in 2:(length(areaK))) {
+    deltaK = c(deltaK, (areaK[i] - areaK[i - 1])/areaK[i -
+                                                         1])
+  }
+  plot(1 + (1:length(deltaK)), y = deltaK, xlab = "k", ylab = "relative change in area under CDF curve",
+       main = "Delta area", type = "b")
+}
+
+#' Assign colours to cluster assignments
+#'
+#' Internal function to assign colours to the cluster assignments;
+#' taken from \code{ConsensusClusterPlus}.
+#'
+#' @param past_ct cluster assignments of the previous clustering (\code{k-1} numbers of clusters)
+#' @param ct current cluster assignments (\code{k} numbers of clusters)
+#' @param colorU vector of colour names
+#' @param colorList results of a previous call to \code{setClusterColors}
+#'
+#' @return List with the following entries:\tabular{ll}{
+#'    \code{1.} \tab vector of colours for every subject\cr
+#'    \tab \cr
+#'    \code{2.} \tab number; probably the number of different colours used (I haven't checked it)\cr
+#'    \tab \cr
+#'    \code{3.} \tab vector of unique colours in the first list entry
+#' }
+setClusterColors <- function(past_ct,
+                             ct,
+                             colorU,
+                             colorList) {
+
+  newColors = c()
+  if (length(colorList) == 0) {
+    newColors = colorU[ct]
+    colori = 2
+  }
+  else {
+    newColors = rep(NULL, length(ct))
+    colori = colorList[[2]]
+    mo = table(past_ct, ct)
+    m = mo/apply(mo, 1, sum)
+    for (tci in 1:ncol(m)) {
+      maxC = max(m[, tci])
+      pci = which(m[, tci] == maxC)
+      if (sum(m[, tci] == maxC) == 1 & max(m[pci, ]) ==
+          maxC & sum(m[pci, ] == maxC) == 1) {
+        newColors[which(ct == tci)] = unique(colorList[[1]][which(past_ct ==
+                                                                    pci)])
+      }
+      else {
+        colori = colori + 1
+        newColors[which(ct == tci)] = colorU[colori]
+      }
+    }
+  }
+  return(list(newColors, colori, unique(newColors)))
+}
+
+#' Generate the tracking plot
+#'
+#' Internal function to generate the tracking plot; taken from \code{ConsensusClusterPlus}.
+#'
+#' @param m list of assigned colours to every observation with one entry per
+#' specified number of cluster
+#'
+#' @return tracking plot
+clusterTrackingPlot <- function(m) {
+  plot(NULL, xlim = c(-0.1, 1), ylim = c(0, 1), axes = FALSE,
+       xlab = "samples", ylab = "k", main = "tracking plot")
+  for (i in 1:nrow(m)) {
+    rect(xleft = seq(0, 1 - 1/ncol(m), by = 1/ncol(m)), ybottom = rep(1 -
+                                                                        i/nrow(m), ncol(m)), xright = seq(1/ncol(m), 1, by = 1/ncol(m)),
+         ytop = rep(1 - (i - 1)/nrow(m), ncol(m)), col = m[i,
+         ], border = NA)
+  }
+  xl = seq(0, 1 - 1/ncol(m), by = 1/ncol(m))
+  segments(xl, rep(-0.1, ncol(m)), xl, rep(0, ncol(m)), col = "black")
+  ypos = seq(1, 0, by = -1/nrow(m)) - 1/(2 * nrow(m))
+  text(x = -0.1, y = ypos[-length(ypos)], labels = seq(2, nrow(m) +
+                                                         1, by = 1))
+}
+
+#' Generate colour palette
+#'
+#' Internal function to generate colour palette; taken from \code{ConsensusClusterPlus}.
+#'
+#' @param n number of colours
+#'
+#' @return
+myPal <- function(n = 10) {
+  seq <- rev(seq(0, 255, by = 255 / (n)))
+  palRGB <- cbind(seq, seq, 255)
+  rgb(palRGB, maxColorValue = 255)
+}
