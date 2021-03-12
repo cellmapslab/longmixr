@@ -87,8 +87,10 @@ the approach from the \code{ConsensusClusterPlus} package.
 set.seed(5)
 test_data <- data.frame(patient_id = rep(1:10, each = 4),
 visit = rep(1:4, 10),
-var_1 = c(rnorm(20, -1), rnorm(20, 3)) + rep(seq(from = 0, to = 1.5, length.out = 4), 10),
-var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) + rep(seq(from = 1.5, to = 0, length.out = 4), 10))
+var_1 = c(rnorm(20, -1), rnorm(20, 3)) +
+rep(seq(from = 0, to = 1.5, length.out = 4), 10),
+var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) +
+rep(seq(from = 1.5, to = 0, length.out = 4), 10))
 model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
 flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
 clustering <- longitudinal_consensus_cluster(

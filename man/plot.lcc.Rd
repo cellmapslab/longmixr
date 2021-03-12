@@ -4,12 +4,14 @@
 \alias{plot.lcc}
 \title{Plot a longitudinal consensus clustering}
 \usage{
-plot.lcc(x, tmyPal = NULL)
+\method{plot}{lcc}(x, tmyPal = NULL, ...)
 }
 \arguments{
-\item{x}{\code{lcc} object (output from \code{\linke{longitudinal_consensus_cluster}})}
+\item{x}{\code{lcc} object (output from \code{\link{longitudinal_consensus_cluster}})}
 
 \item{tmyPal}{optional character vector of colors for consensus matrix}
+
+\item{...}{additional parameters for plotting; currently not used}
 }
 \value{
 Plots the following plots:\tabular{ll}{

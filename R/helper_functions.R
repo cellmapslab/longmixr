@@ -102,6 +102,9 @@ triangle <- function(m,
 #' @param ml list of all consensus matrices
 #' @param breaks number of breaks
 #'
+#' @importFrom graphics hist lines legend
+#' @importFrom grDevices rainbow
+#'
 #' @return a CDF plot
 CDF <- function(ml,
                 breaks = 100) {
@@ -192,6 +195,8 @@ setClusterColors <- function(past_ct,
 #' @param m list of assigned colours to every observation with one entry per
 #' specified number of cluster
 #'
+#' @importFrom graphics rect segments text
+#'
 #' @return tracking plot
 clusterTrackingPlot <- function(m) {
   plot(NULL, xlim = c(-0.1, 1), ylim = c(0, 1), axes = FALSE,
@@ -214,6 +219,8 @@ clusterTrackingPlot <- function(m) {
 #' Internal function to generate colour palette; taken from \code{ConsensusClusterPlus}.
 #'
 #' @param n number of colours
+#'
+#' @importFrom grDevices rgb
 #'
 #' @return vector of colour hex values where the first is red and the rest different
 #' blue colours

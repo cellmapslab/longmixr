@@ -27,6 +27,8 @@ identify all observations of one subject}
 
 \item{maxK}{maximum number of clusters, default is \code{3}}
 
+\item{repCount}{number of repetitions}
+
 \item{pItem}{fraction of samples contained in subsampled sample, default is
 \code{0.8}}
 

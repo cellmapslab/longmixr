@@ -49,15 +49,20 @@
 #'    \code{found_flexmix_clusters} \tab a vector of the actual found number of clusters by \code{flexmix} (which can deviate from the specified number)
 #' }
 #'
-#' @import checkmate
+#' @importFrom stats as.formula hclust as.dist cutree
+#' @importFrom utils write.csv write.table
+#'
+#'
 #' @export
 #'
 #' @examples
 #' set.seed(5)
 #' test_data <- data.frame(patient_id = rep(1:10, each = 4),
 #' visit = rep(1:4, 10),
-#' var_1 = c(rnorm(20, -1), rnorm(20, 3)) + rep(seq(from = 0, to = 1.5, length.out = 4), 10),
-#' var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) + rep(seq(from = 1.5, to = 0, length.out = 4), 10))
+#' var_1 = c(rnorm(20, -1), rnorm(20, 3)) +
+#' rep(seq(from = 0, to = 1.5, length.out = 4), 10),
+#' var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) +
+#' rep(seq(from = 1.5, to = 0, length.out = 4), 10))
 #' model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
 #' flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
 #' clustering <- longitudinal_consensus_cluster(
@@ -85,20 +90,21 @@ longitudinal_consensus_cluster <- function(data = NULL,
                                            verbose = FALSE) {
 
   # check variables
-  assert_count(seed, positive = TRUE)
+  checkmate::assert_count(seed, positive = TRUE)
   set.seed(seed)
 
-  assert_character(id_column, len = 1, any.missing = FALSE)
-  assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = 1)
-  assert_choice(id_column, colnames(data))
-  assert_integerish(maxK, len = 1, lower = 2)
-  assert_count(reps, positive = TRUE)
-  assert_number(pItem, lower = 1 / nrow(data), upper = 1)
+  checkmate::assert_character(id_column, len = 1, any.missing = FALSE)
+  checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = 1)
+  checkmate::assert_choice(id_column, colnames(data))
+  checkmate::assert_integerish(maxK, len = 1, lower = 2)
+  checkmate::assert_count(reps, positive = TRUE)
+  checkmate::assert_number(pItem, lower = 1 / nrow(data), upper = 1)
   # model_list can be either a list of flexmix drivers or a single flexmix
   # driver
-  assert(check_list(model_list, types = "FLXMR"), check_class(model_list, "FLXMR"))
-  assert_class(flexmix_formula, "formula")
-  assert_character(title, len = 1)
+  checkmate::assert(checkmate::check_list(model_list, types = "FLXMR"),
+                    checkmate::check_class(model_list, "FLXMR"))
+  checkmate::assert_class(flexmix_formula, "formula")
+  checkmate::assert_character(title, len = 1)
   finalLinkage <- match.arg(finalLinkage)
 
   # perform the longitudinal clustering to create the consensus matrices
@@ -176,8 +182,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
 #' Internal function to actually perform the clustering
 #'
 #' @inheritParams longitudinal_consensus_cluster
-#'
-#' @import flexmix
+#' @param repCount number of repetitions
 #'
 #' @return Returns a list with the following entries:\tabular{ll}{
 #'    \code{consensus_matrices} \tab a list of all consensus matrices where the kth entry is the consensus matrix for k specified numbers of clusters. The first entry is \code{NULL} \cr
@@ -222,11 +227,11 @@ lcc_run <- function(data,
                                   sampleKey = sample_x[["sample_patients"]])
 
     # cluster the subsampled data
-    fitted_models <- stepFlexmix(formula = flexmix_formula,
-                                 data = sample_x[["subsample"]],
-                                 k = seq(from = 2, to = maxK, by = 1),
-                                 model = model_list,
-                                 nrep = 1)
+    fitted_models <- flexmix::stepFlexmix(formula = flexmix_formula,
+                                          data = sample_x[["subsample"]],
+                                          k = seq(from = 2, to = maxK, by = 1),
+                                          model = model_list,
+                                          nrep = 1)
 
     for (k in seq(from = 2, to = maxK, by = 1)) {
 
@@ -284,8 +289,9 @@ lcc_run <- function(data,
 
 #' Plot a longitudinal consensus clustering
 #'
-#' @param x \code{lcc} object (output from \code{\linke{longitudinal_consensus_cluster}})
+#' @param x \code{lcc} object (output from \code{\link{longitudinal_consensus_cluster}})
 #' @param tmyPal optional character vector of colors for consensus matrix
+#' @param ... additional parameters for plotting; currently not used
 #'
 #' @return Plots the following plots:\tabular{ll}{
 #'    \code{consensus matrix legend} \tab the legend for the following consensus matrix plots \cr
@@ -299,12 +305,13 @@ lcc_run <- function(data,
 #'    \code{tracking plot} \tab cluster assignment of the subjects throughout the different cluster solutions
 #' }
 #'
-#' @importFrom checkmate assert_class assert_character
+#' @importFrom stats as.dendrogram heatmap median
+#'
 #' @export
-plot.lcc <- function(x, tmyPal = NULL) {
+plot.lcc <- function(x, tmyPal = NULL, ...) {
 
-  assert_class(x, "lcc")
-  assert_character(tmyPal, null.ok = TRUE)
+  checkmate::assert_class(x, "lcc")
+  checkmate::assert_character(tmyPal, null.ok = TRUE)
 
   # set up the colour palette
   colorList <- list()
@@ -371,10 +378,10 @@ plot.lcc <- function(x, tmyPal = NULL) {
             na.rm = TRUE,
             labRow = FALSE,
             labCol = FALSE,
-            mar = c(5, 5),
+            margins = c(5, 5),
             main = paste("consensus matrix k=", tk, "; median flexmix clusters: ",
                          median_found_flexmix_clusters, sep = ""),
-            ColSideCol = colorList[[1]])
+            ColSideColors = colorList[[1]])
     legend("topright", legend = unique(ct), fill = unique(colorList[[1]]),
            horiz = FALSE)
 
