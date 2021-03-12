@@ -229,3 +229,38 @@ myPal <- function(n = 10) {
   palRGB <- cbind(seq, seq, 255)
   rgb(palRGB, maxColorValue = 255)
 }
+
+#' Extract one overview assignment table
+#'
+#' This internal function generates a \code{data.frame} with the cluster
+#' assignments for every subject across all specified numbers of clusters
+#'
+#' @param results result list where the first entry is ignored and the other
+#' entries respond to the number of specified clusters (the kth entry means
+#' k specified clusters); every entry needs to contain the entry
+#' \code{consensusClass}. The cluster assignments need to have the subject
+#' name as attribute
+#' @param id_column character vector of the ID column in the dataset
+#'
+#' @return \code{data.frame} with a column named after the \code{id_column}
+#' containing the subject name and one column with the cluster assignments for
+#' every specified number of clusters, e.g. \code{assignment_num_clus_2}
+extract_assignment <- function(results,
+                               id_column) {
+  # extract the assignment for every specified number of clusters
+  cluster_assignments <- lapply(seq(from = 2, to = length(results), by = 1),
+                                function(i) {
+                                  results[[i]][["consensusClass"]]
+                                })
+  # generate a data.frame; the rownames are the subject names
+  merged_data <- do.call("cbind", cluster_assignments)
+  patient_id <- rownames(merged_data)
+  merged_data <- as.data.frame(merged_data)
+  rownames(merged_data) <- NULL
+  merged_data <- cbind(patient_id, merged_data)
+  colnames(merged_data) <- c(id_column, paste0("assignment_num_clus_",
+                                               seq(from = 2, to = length(results),
+                                                   by = 1)))
+  merged_data
+
+}

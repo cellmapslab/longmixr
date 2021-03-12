@@ -60,9 +60,11 @@ Default is \code{FALSE}}
 }
 \value{
 An object (list) of class \code{lcc} with length \code{maxk}.
-The first entry \code{general_information}
-contains a list with one entry \code{consensus_matrices} which is a list of all
-consensus matrices (for all specified clusters).
+The first entry \code{general_information} contains the entries:\tabular{ll}{
+\code{consensus_matrices} \tab a list of all consensus matrices (for all specified clusters) \cr
+\tab \cr
+\code{cluster_assignments} \tab a \code{data.frame} with an ID column named after \code{id_column} and a column for every specified number of clusters, e.g. \code{assignment_num_clus_2}
+}
 
 The other entries correspond to the number of specified clusters (e.g. the
 second entry corresponds to 2 specified clusters) and each contains a list with the
