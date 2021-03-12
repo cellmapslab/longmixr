@@ -384,5 +384,11 @@ plot.lcc <- function(x, tmyPal = NULL) {
   # plot the CDF, delta CDF and observation tracking plots
   CDF(x[["general_information"]][["consensus_matrices"]])
   n_last_element <- length(x)
-  clusterTrackingPlot(colorM[, x[[n_last_element]]$consensusTree$order])
+  colour_tracking_matrix <- colorM[, x[[n_last_element]]$consensusTree$order]
+  # if only 2 clusters were specified, colour_tracking_matrix is not a matrix
+  # but a vector -> then the plot doesn't work -> transform
+  if (!is.matrix(colour_tracking_matrix) && n_last_element == 2) {
+    colour_tracking_matrix <- matrix(colour_tracking_matrix, nrow = 1)
+  }
+  clusterTrackingPlot(colour_tracking_matrix)
 }

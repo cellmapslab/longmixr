@@ -5,7 +5,8 @@
 <!-- badges: end -->
 
 The goal of phenendo is to provide consensus clustering for longitudinal clustering
-performed with `flexmix`.
+performed with [`flexmix`](https://cran.r-project.org/package=flexmix). It uses the approach from [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html) but
+replaces the clustering of the longitudinal data with a `flexmix` model.
 
 ## Installation
 
@@ -14,3 +15,47 @@ You can install phenendo from [github](https://www.github.com) with:
 ``` r
 remotes::install_github("jhagenberg/phenendo")
 ```
+
+## Basic usage
+You need a dataset with a column that identifies the subject, a column that
+denotes the time point of the measurement and variables that you want to model.
+
+``` r
+set.seed(5)
+test_data <- data.frame(
+  patient_id = rep(1:10, each = 4),
+  visit = rep(1:4, 10),
+  var_1 = c(rnorm(20, -1), rnorm(20, 3)) + rep(seq(from = 0, to = 1.5, length.out = 4), 10),
+  var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) + rep(seq(from = 1.5, to = 0, length.out = 4), 10)
+)
+```
+
+In the following approach, the variables `var_1` and `var_2` each are modelled as
+dependent on a smooth function of time, taking the multiple measurements for each
+subject into account. The assumption is that `var_1` and `var_2` are concomitant
+variables. The modelling is specified in the `flexmix` drivers and the `flexmix_formula`:
+
+``` r
+model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
+                   flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
+clustering <- longitudinal_consensus_cluster(
+  data = test_data,
+  id_column = "patient_id",
+  maxK = 2,
+  reps = 3,
+  model_list = model_list,
+  flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
+```
+
+The results of the clustering can be assessed via several plots. For every
+specified number of clusters, the consensus matrix and the resulting hierarchical
+clustering on this matrix is shown. Additionally, the consensus CDF and the delta
+Area plots give a measure which number of cluster is optimal and the tracking plot
+gives an overview how the observations are distributed across the different clusters
+for different numbers of specified clusters.
+
+``` r
+plot(clustering)
+```
+## Attribution
+The package is based on the code of [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html).

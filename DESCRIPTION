@@ -1,13 +1,12 @@
 Package: phenendo
-Title: What the Package Does (One Line, Title Case)
+Title: Longitudinal consensus clustering with flexmix
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Jonas",
+           family = "Hagenberg",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "jonas_hagenberg@psych.mpg.de")
+Description: This packages adapts the consensus clustering approach from the package ConsensusClusteringPlus for longitudinal data. The longitudinal data is clustered with flexible mixture models from flexmix, while the consensus matrices are hierarchically clustered as in ConsensusClusterPlus.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true

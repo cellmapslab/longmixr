@@ -4,7 +4,7 @@
 \alias{plot.lcc}
 \title{Plot a longitudinal consensus clustering}
 \usage{
-\method{plot}{lcc}(x, tmyPal = NULL)
+plot.lcc(x, tmyPal = NULL)
 }
 \arguments{
 \item{x}{\code{lcc} object (output from \code{\linke{longitudinal_consensus_cluster}})}

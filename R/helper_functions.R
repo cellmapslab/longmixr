@@ -215,7 +215,8 @@ clusterTrackingPlot <- function(m) {
 #'
 #' @param n number of colours
 #'
-#' @return
+#' @return vector of colour hex values where the first is red and the rest different
+#' blue colours
 myPal <- function(n = 10) {
   seq <- rev(seq(0, 255, by = 255 / (n)))
   palRGB <- cbind(seq, seq, 255)
