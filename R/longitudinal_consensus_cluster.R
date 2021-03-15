@@ -407,3 +407,92 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   }
   clusterTrackingPlot(colour_tracking_matrix)
 }
+
+#' Try out different linkage methods
+#'
+#' In the final step, the consensus clustering performs a hierarchical clustering
+#' step on the consensus cluster. This function tries out different linkage
+#' methods and return the corresponding clusterings. The outputs can be plotted
+#' like the results from \code{\link{longitudinal_consensus_cluster}}.
+#'
+#' @param results clustering result of class \code{lcc}
+#' @param use_methods character vector of one or several items of \code{average},
+#' \code{ward.D}, \code{ward.D2}, \code{single}, \code{complete}, \code{mcquitty},
+#' \code{median} or \code{centroid}
+#'
+#' @return a list of elements, each element of class \code{lcc}. The entries are
+#' named after the used linkage method.
+#'
+#' @importFrom stats hclust as.dist cutree
+#' @export
+#'
+#' @examples
+#' set.seed(5)
+#' test_data <- data.frame(patient_id = rep(1:10, each = 4),
+#' visit = rep(1:4, 10),
+#' var_1 = c(rnorm(20, -1), rnorm(20, 3)) +
+#' rep(seq(from = 0, to = 1.5, length.out = 4), 10),
+#' var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) +
+#' rep(seq(from = 1.5, to = 0, length.out = 4), 10))
+#' model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
+#' flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
+#' clustering <- longitudinal_consensus_cluster(
+#' data = test_data,
+#' id_column = "patient_id",
+#' maxK = 2,
+#' reps = 3,
+#' model_list = model_list,
+#' flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
+#'
+#' clustering_linkage <- test_clustering_methods(results = clustering,
+#' use_methods = c("average", "single"))
+#' # not run
+#' # plot(clustering_linkage[["single"]])
+#' # end not run
+test_clustering_methods <- function(results,
+                                    use_methods = c("average", "ward.D", "ward.D2", "single", "complete",
+                                                    "mcquitty", "median", "centroid")) {
+  checkmate::assert_class(results, "lcc")
+  checkmate::assert_character(use_methods, unique = TRUE)
+
+  new_results <- vector(mode = "list", length = length(use_methods))
+  names(results) <- use_methods
+
+  # try out all specified linkage methods
+  new_results <- lapply(use_methods, function(current_method) {
+    # generate the consensus clustering on the consensus matrices
+    curr_res <- list()
+    for (tk in seq(from = 2, to = length(results), by = 1)) {
+
+      fm <- results[[tk]][["consensusMatrix"]]
+      hc <- hclust(as.dist(1 - fm), method = current_method)
+      ct <- cutree(hc, tk)
+      names(ct) <- names(results[[tk]][["consensusClass"]])
+
+      curr_res[[tk]] <- list(consensusMatrix = fm,
+           consensusTree = hc,
+           consensusClass = ct,
+           found_flexmix_clusters = results[[tk]][["found_flexmix_clusters"]])
+    }
+
+    # add the correct general information
+    original_assignments <- results[["general_information"]][["cluster_assignments"]]
+    id_column <- colnames(original_assignments)[1]
+    assignment_table <- extract_assignment(results = curr_res,
+                                           id_column = id_column)
+
+    # gather all consensus matrices to one list
+    consensus_matrices <- list()
+    for (i in seq(from = 2, to = length(results), by = 1)) {
+      consensus_matrices[[i]] <- curr_res[[i]][["consensusMatrix"]]
+    }
+    curr_res[[1]] <- list(consensus_matrices = consensus_matrices,
+                     cluster_assignments = assignment_table)
+    names(curr_res)[1] <- "general_information"
+
+    class(curr_res) <- c("lcc", class(curr_res))
+    curr_res
+  })
+  names(new_results) <- use_methods
+  new_results
+}

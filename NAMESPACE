@@ -2,6 +2,7 @@
 
 S3method(plot,lcc)
 export(longitudinal_consensus_cluster)
+export(test_clustering_methods)
 importFrom(grDevices,rainbow)
 importFrom(grDevices,rgb)
 importFrom(graphics,hist)
