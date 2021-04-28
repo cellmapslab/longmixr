@@ -23,7 +23,11 @@ Plots the following plots:\tabular{ll}{
 \tab \cr
 \code{Delta area} \tab elbow plot of the difference in the CDFs between the different numbers of clusters \cr
 \tab \cr
-\code{tracking plot} \tab cluster assignment of the subjects throughout the different cluster solutions
+\code{tracking plot} \tab cluster assignment of the subjects throughout the different cluster solutions \cr
+\tab \cr
+\code{item-consensus} \tab for every item (subject), calculate the average consensus value with all items that are assigned to one consensus cluster. This is repeated for every cluster and for all different numbers of clusters \cr
+\tab \cr
+\code{cluster-consensus} \tab every bar represents the average pair-wise item-consensus within one consensus cluster
 }
 }
 \description{

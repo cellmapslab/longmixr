@@ -310,10 +310,15 @@ lcc_run <- function(data,
 #'    \tab \cr
 #'    \code{Delta area} \tab elbow plot of the difference in the CDFs between the different numbers of clusters \cr
 #'    \tab \cr
-#'    \code{tracking plot} \tab cluster assignment of the subjects throughout the different cluster solutions
+#'    \code{tracking plot} \tab cluster assignment of the subjects throughout the different cluster solutions \cr
+#'    \tab \cr
+#'    \code{item-consensus} \tab for every item (subject), calculate the average consensus value with all items that are assigned to one consensus cluster. This is repeated for every cluster and for all different numbers of clusters \cr
+#'    \tab \cr
+#'    \code{cluster-consensus} \tab every bar represents the average pair-wise item-consensus within one consensus cluster
 #' }
 #'
 #' @importFrom stats as.dendrogram heatmap median
+#' @importFrom graphics barplot par
 #'
 #' @export
 plot.lcc <- function(x, tmyPal = NULL, ...) {
@@ -340,6 +345,10 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     colBreaks <- length(tmyPal)
   }
 
+  ##############################################################################
+  # plot the consensus matrices
+  ##############################################################################
+
   # plot the legend
   sc <- cbind(seq(0, 1, by = 1 / colBreaks))
   rownames(sc) <- sc[, 1]
@@ -359,26 +368,27 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   # for every cluster, calculate the correct colours for every observation
   for (tk in seq(from = 2, to = length(x), by = 1)) {
 
-    c <- x[[tk]][["consensusMatrix"]]
-    hc <- x[[tk]][["consensusTree"]]
-    ct <- x[[tk]][["consensusClass"]]
+    c_matrix <- x[[tk]][["consensusMatrix"]]
+    c_tree <- x[[tk]][["consensusTree"]]
+    c_class <- x[[tk]][["consensusClass"]]
+
     found_flexmix_clusters <- x[[tk]][["found_flexmix_clusters"]]
     median_found_flexmix_clusters <- median(found_flexmix_clusters)
 
     if (tk == 2) {
-      past_ct <- NULL
+      past_c_class <- NULL
     } else {
-      past_ct <- x[[tk - 1]][["consensusClass"]]
+      past_c_class <- x[[tk - 1]][["consensusClass"]]
     }
-    colorList <- setClusterColors(past_ct,
-                                  ct,
+    colorList <- setClusterColors(past_c_class,
+                                  c_class,
                                   thisPal,
                                   colorList)
-    pc <- c
-    pc <- rbind(pc[hc$order, ], 0)
 
-    heatmap(pc,
-            Colv = as.dendrogram(hc),
+    plot_c_matrix <- rbind(c_matrix[c_tree$order, ], 0)
+
+    heatmap(plot_c_matrix,
+            Colv = as.dendrogram(c_tree),
             Rowv = NA,
             symm = FALSE,
             scale = "none",
@@ -390,13 +400,16 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
             main = paste("consensus matrix k=", tk, "; median flexmix clusters: ",
                          median_found_flexmix_clusters, sep = ""),
             ColSideColors = colorList[[1]])
-    legend("topright", legend = unique(ct), fill = unique(colorList[[1]]),
+    legend("topright", legend = unique(c_class), fill = unique(colorList[[1]]),
            horiz = FALSE)
 
     colorM <- rbind(colorM, colorList[[1]])
   }
 
+  ##############################################################################
   # plot the CDF, delta CDF and observation tracking plots
+  ##############################################################################
+
   CDF(x[["general_information"]][["consensus_matrices"]])
   n_last_element <- length(x)
   colour_tracking_matrix <- colorM[, x[[n_last_element]]$consensusTree$order]
@@ -406,6 +419,85 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     colour_tracking_matrix <- matrix(colour_tracking_matrix, nrow = 1)
   }
   clusterTrackingPlot(colour_tracking_matrix)
+
+  ##############################################################################
+  # plot the item-consensus
+  ##############################################################################
+
+  cc <- rbind()
+  cci <- rbind()
+  sumx <- list()
+  colorsArr <- c()
+  old_par <- par(mfrow = c(3, 1), mar = c(4, 3, 2, 0))
+  on.exit(par(old_par))
+  for (tk in seq(from = 2, to = length(x), by = 1)) {
+    eiCols <- c()
+    c_matrix <- x[[tk]][["consensusMatrix"]]
+    c_class <- x[[tk]][["consensusClass"]]
+
+    # for every subject (item), calculate the average consensus value with all
+    # subjects who are grouped into one cluster
+    # do this for every cluster
+    c_matrix <- triangle(c_matrix, mode = 2)
+    for (ci in sort(unique(c_class))) {
+      items <- which(c_class == ci)
+      nk <- length(items)
+      mk <- sum(c_matrix[items, items], na.rm = TRUE) / ((nk * (nk - 1)) / 2)
+      cc <- rbind(cc, c(tk, ci, mk))
+      for (ei in rev(x[[2]]$consensusTree$order)) {
+        denom <- if (ei %in% items) {
+          nk - 1
+        }
+        else {
+          nk
+        }
+        mei <- sum(c(c_matrix[ei, items], c_matrix[items, ei]), na.rm = TRUE) /
+          denom
+        cci <- rbind(cci, c(tk, ci, ei, mei))
+      }
+      eiCols <- c(eiCols, rep(ci, length(c_class)))
+    }
+    cck <- cci[which(cci[, 1] == tk), ]
+    w <- lapply(split(cck, cck[, 3]), function(x) {
+      y <- matrix(unlist(x), ncol = 4)
+      y[order(y[, 2]), 4]
+    })
+
+    # set up the matrix for plotting
+    q <- matrix(as.numeric(unlist(w)), ncol = length(w), byrow = FALSE)
+    q <- q[, x[[2]]$consensusTree$order]
+    # it needs to be colorM[tk - 1, ] because the first element in
+    # colorM refers to tk (so for 2 clusters, the information is stored in the
+    # first entry and not in the second)
+    thisColors <- unique(cbind(x[[tk]]$consensusClass, colorM[tk - 1, ]))
+    thisColors <- thisColors[order(as.numeric(thisColors[, 1])), 2]
+    colorsArr <- c(colorsArr, thisColors)
+    rankedBarPlot(q, thisColors,
+                  cc = c_class[x[[2]]$consensusTree$order],
+                  paste("k=", tk, sep = ""))
+  }
+
+  ##############################################################################
+  # plot the cluster-consensus
+  ##############################################################################
+
+  ys <- cs <- lab <- NULL
+  lastk <- cc[1, 1]
+  for (i in seq_len(length(colorsArr))) {
+    if (lastk != cc[i, 1]) {
+      ys <- c(ys, 0, 0)
+      cs <- c(cs, NA, NA)
+      lastk <- cc[i, 1]
+      lab <- c(lab, NA, NA)
+    }
+    ys <- c(ys, cc[i, 3])
+    cs <- c(cs, colorsArr[i])
+    lab <- c(lab, cc[i, 1])
+  }
+  names(ys) <- lab
+  par(mfrow = c(3, 1), mar = c(4, 3, 2, 0))
+  barplot(ys, col = cs, border = cs, main = "cluster-consensus",
+          ylim = c(0, 1), las = 1)
 }
 
 #' Try out different linkage methods
@@ -455,9 +547,6 @@ test_clustering_methods <- function(results,
   checkmate::assert_class(results, "lcc")
   checkmate::assert_character(use_methods, unique = TRUE)
 
-  new_results <- vector(mode = "list", length = length(use_methods))
-  names(results) <- use_methods
-
   # try out all specified linkage methods
   new_results <- lapply(use_methods, function(current_method) {
     # generate the consensus clustering on the consensus matrices
@@ -470,9 +559,9 @@ test_clustering_methods <- function(results,
       names(ct) <- names(results[[tk]][["consensusClass"]])
 
       curr_res[[tk]] <- list(consensusMatrix = fm,
-           consensusTree = hc,
-           consensusClass = ct,
-           found_flexmix_clusters = results[[tk]][["found_flexmix_clusters"]])
+                             consensusTree = hc,
+                             consensusClass = ct,
+                             found_flexmix_clusters = results[[tk]][["found_flexmix_clusters"]])
     }
 
     # add the correct general information
@@ -487,12 +576,13 @@ test_clustering_methods <- function(results,
       consensus_matrices[[i]] <- curr_res[[i]][["consensusMatrix"]]
     }
     curr_res[[1]] <- list(consensus_matrices = consensus_matrices,
-                     cluster_assignments = assignment_table)
+                          cluster_assignments = assignment_table)
     names(curr_res)[1] <- "general_information"
 
     class(curr_res) <- c("lcc", class(curr_res))
     curr_res
   })
+
   names(new_results) <- use_methods
   new_results
 }

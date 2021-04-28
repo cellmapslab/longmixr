@@ -264,3 +264,38 @@ extract_assignment <- function(results,
   merged_data
 
 }
+
+#' Generate item/subject consensus plot
+#'
+#' Internal function to generate the item consensus plot; taken from \code{ConsensusClusterPlus}.
+#'
+#' @param d data matrix
+#' @param myc colours for the clusters
+#' @param cc order of the items/subjects as in the solution for 2 clusters
+#' @param title title of the plot
+#'
+#' @return item/subject consensus plot
+rankedBarPlot <- function (d,
+                           myc,
+                           cc,
+                           title) {
+  colors = rbind()
+  byRank = cbind()
+  spaceh = 0.1
+  for (i in 1:ncol(d)) {
+    byRank = cbind(byRank, sort(d[, i], na.last = F))
+    colors = rbind(colors, order(d[, i], na.last = F))
+  }
+  maxH = max(c(1.5, apply(byRank, 2, sum)), na.rm = T)
+  barp = barplot(apply(byRank, 2, sum), col = myc[colors[, 1]],
+                 space = spaceh, ylim = c(0, maxH),
+                 main = paste("item-consensus", title), border = NA, las = 1)
+  for (i in 2:nrow(byRank)) {
+    barplot(apply(matrix(byRank[i:nrow(byRank), ], ncol = ncol(byRank)),
+                  2, sum), space = spaceh, col = myc[colors[, i]],
+            ylim = c(0, maxH), add = T, border = NA, las = 1)
+  }
+  xr = seq(spaceh, ncol(d) + ncol(d) * spaceh, (ncol(d) + ncol(d) *
+                                                  spaceh)/ncol(d))
+  text("*", x = xr + 0.5, y = maxH, col = myc[cc], cex = 1.4)
+}
