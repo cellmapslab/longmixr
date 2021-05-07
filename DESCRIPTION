@@ -21,5 +21,6 @@ Imports:
     grDevices,
     flexmix,
     mgcv,
+    StatMatch,
     stats,
     utils
