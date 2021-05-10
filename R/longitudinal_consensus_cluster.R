@@ -124,6 +124,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
   flexmix_found_clusters <- results[["found_number_clusters"]]
 
   # generate the consensus clustering on the consensus matrices
+  res <- vector(mode = "list", length = maxK)
   for (tk in 2:maxK) {
     if (verbose) {
       message(paste("consensus ", tk))
