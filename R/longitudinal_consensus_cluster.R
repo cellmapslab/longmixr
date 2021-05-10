@@ -26,9 +26,6 @@
 #' the consensus matrix; has to be \code{average, ward.D, ward.D2, single, complete, mcquitty, median}
 #' or \code{centroid}. The default is \code{average}
 #' @param seed seed for reproducibility
-#' @param writeTable \code{boolean} if the log and the results should be written
-#' in a table. If \code{TRUE}, it creates a directory with the name of \code{title}.
-#' Default is \code{FALSE}
 #' @param verbose \code{boolean} if status messages should be displayed.
 #' Default is \code{FALSE}
 #'
@@ -36,7 +33,9 @@
 #' The first entry \code{general_information} contains the entries:\tabular{ll}{
 #'    \code{consensus_matrices} \tab a list of all consensus matrices (for all specified clusters) \cr
 #'    \tab \cr
-#'    \code{cluster_assignments} \tab a \code{data.frame} with an ID column named after \code{id_column} and a column for every specified number of clusters, e.g. \code{assignment_num_clus_2}
+#'    \code{cluster_assignments} \tab a \code{data.frame} with an ID column named after \code{id_column} and a column for every specified number of clusters, e.g. \code{assignment_num_clus_2} \cr
+#'    \tab \cr
+#'    \code{call} \tab the call/all arguments how \code{longitudinal_consensus_cluster} was called
 #' }
 #'
 #' The other entries correspond to the number of specified clusters (e.g. the
@@ -88,7 +87,6 @@ longitudinal_consensus_cluster <- function(data = NULL,
                                            finalLinkage = c("average", "ward.D", "ward.D2", "single", "complete",
                                                             "mcquitty", "median", "centroid"),
                                            seed = 3794,
-                                           writeTable = FALSE,
                                            verbose = FALSE) {
 
   # check variables
@@ -108,12 +106,15 @@ longitudinal_consensus_cluster <- function(data = NULL,
   checkmate::assert_class(flexmix_formula, "formula")
   checkmate::assert_character(title, len = 1)
   finalLinkage <- match.arg(finalLinkage)
+  checkmate::assert_logical(verbose, len = 1)
+
+  call <- match.call()
 
   # perform the longitudinal clustering to create the consensus matrices
   results <- lcc_run(data = data,
                      id_column = id_column,
                      maxK = maxK,
-                     repCount = reps,
+                     reps = reps,
                      pItem = pItem,
                      model_list = model_list,
                      flexmix_formula = flexmix_formula,
@@ -121,26 +122,6 @@ longitudinal_consensus_cluster <- function(data = NULL,
 
   consensus_matrices <- results[["consensus_matrices"]]
   flexmix_found_clusters <- results[["found_number_clusters"]]
-
-  res <- list()
-  if (writeTable && !file.exists(paste(title, sep = ""))) {
-    dir.create(paste(title, sep = ""))
-  }
-
-  log <- matrix(ncol = 2, byrow = T, c("title", title, "maxK",
-                                       maxK, "input data.frame rows", nrow(data),
-                                       "unique patients", length(unique(data[, id_column])),
-                                       "input data.frame columns", ncol(data), "number of bootstraps",
-                                       reps, "item subsampling proportion", pItem,
-                                       "final linkage type",
-                                       finalLinkage, "plot",
-                                       if (is.null(plot)) NA else plot, "seed", seed))
-  colnames(log) <- c("argument", "value")
-
-  if (writeTable) {
-    write.csv(file = paste(title, "/", title, ".log.csv",
-                           sep = ""), log, row.names = F)
-  }
 
   # generate the consensus clustering on the consensus matrices
   for (tk in 2:maxK) {
@@ -167,18 +148,9 @@ longitudinal_consensus_cluster <- function(data = NULL,
                                          id_column = id_column)
 
   res[[1]] <- list(consensus_matrices = consensus_matrices,
-                   cluster_assignments = assignment_table)
+                   cluster_assignments = assignment_table,
+                   call = call)
   names(res)[1] <- "general_information"
-
-  if (writeTable) {
-    for (i in 2:length(res)) {
-      write.csv(file = paste(title, "/", title, ".k=",
-                             i, ".consensusMatrix.csv", sep = ""), res[[i]]$consensusMatrix)
-      write.table(file = paste(title, "/", title, ".k=",
-                               i, ".consensusClass.csv", sep = ""), res[[i]]$consensusClass,
-                  col.names = F, sep = ",")
-    }
-  }
 
   class(res) <- c("lcc", class(res))
   return(res)
@@ -189,7 +161,6 @@ longitudinal_consensus_cluster <- function(data = NULL,
 #' Internal function to actually perform the clustering
 #'
 #' @inheritParams longitudinal_consensus_cluster
-#' @param repCount number of repetitions
 #'
 #' @return Returns a list with the following entries:\tabular{ll}{
 #'    \code{consensus_matrices} \tab a list of all consensus matrices where the kth entry is the consensus matrix for k specified numbers of clusters. The first entry is \code{NULL} \cr
@@ -199,14 +170,14 @@ longitudinal_consensus_cluster <- function(data = NULL,
 lcc_run <- function(data,
                     id_column,
                     maxK,
-                    repCount,
+                    reps,
                     pItem,
                     model_list,
                     flexmix_formula,
                     verbose) {
   # internal function, therefore no input checks
 
-  m <- vector(mode = "list", repCount)
+  m <- vector(mode = "list", reps)
   connectivity_results <- vector(mode = "list", maxK)
   # get the number of unique patients
   unique_patient_ids <- sort(unique(data[, id_column]))
@@ -218,7 +189,7 @@ lcc_run <- function(data,
   # initialise list for found number of clusters
   found_number_clusters <- vector(mode = "list", maxK)
 
-  for (i in 1:repCount) {
+  for (i in 1:reps) {
     if (verbose) {
       message(paste("random subsample", i))
     }
