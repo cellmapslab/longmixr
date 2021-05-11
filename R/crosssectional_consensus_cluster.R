@@ -7,9 +7,6 @@
 #' @param data a matrix or data.frame containing variables that should be used
 #' for computing the distance. This argument is passed to \code{StatMatch::gower.dist}
 #' @param reps number of repetitions, same as in \code{ConsensusClusterPlus}
-#' @param distance name of the distance function used; as we directly provide
-#' a distance object to the \code{d} argument of \code{ConsensusClusterPlus},
-#' this argument has no function
 #' @param finalLinkage linkage method for final clustering,
 #' same as in \code{ConsensusClusterPlus}same as in \code{ConsensusClusterPlus}
 #' @param innerLinkage linkage method for clustering steps,
@@ -41,7 +38,6 @@
 crosssectional_consensus_cluster <- function(
   data,
   reps = 1000,
-  distance = "StatMatch::gower.dist",
   finalLinkage = "ward.D2",
   innerLinkage = "ward.D2",
   ...) {
@@ -50,7 +46,9 @@ crosssectional_consensus_cluster <- function(
   consensus_cluster <- ConsensusClusterPlus::ConsensusClusterPlus(
     d = data_as_distance,
     reps = reps,
-    distance = distance,
+    # this argument is actually not needed as it doesn't do anything when d is
+    # a distance object (as it is the case here)
+    distance = "StatMatch::gower.dist",
     finalLinkage = finalLinkage,
     innerLinkage = innerLinkage,
     ...)

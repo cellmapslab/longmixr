@@ -8,7 +8,7 @@ lcc_run(
   data,
   id_column,
   maxK,
-  repCount,
+  reps,
   pItem,
   model_list,
   flexmix_formula,
@@ -27,7 +27,7 @@ identify all observations of one subject}
 
 \item{maxK}{maximum number of clusters, default is \code{3}}
 
-\item{repCount}{number of repetitions}
+\item{reps}{number of repetitions, default is \code{10}}
 
 \item{pItem}{fraction of samples contained in subsampled sample, default is
 \code{0.8}}
@@ -36,7 +36,10 @@ identify all observations of one subject}
 drivers of class \code{FLXMR}}
 
 \item{flexmix_formula}{a \code{formula} object that describes the \code{flexmix}
-model}
+model relative to the formula in the flexmix drivers (the dot in the flexmix
+drivers is replaced, see the example). That means that you usueally only
+specify the right-hand side of the formula here. However, this is not enforced
+or checked to give you more flexibility over the \code{flexmix} interface}
 
 \item{verbose}{\code{boolean} if status messages should be displayed.
 Default is \code{FALSE}}

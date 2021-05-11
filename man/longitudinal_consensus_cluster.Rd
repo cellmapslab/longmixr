@@ -16,7 +16,6 @@ longitudinal_consensus_cluster(
   finalLinkage = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
   seed = 3794,
-  writeTable = FALSE,
   verbose = FALSE
 )
 }
@@ -41,7 +40,10 @@ identify all observations of one subject}
 drivers of class \code{FLXMR}}
 
 \item{flexmix_formula}{a \code{formula} object that describes the \code{flexmix}
-model}
+model relative to the formula in the flexmix drivers (the dot in the flexmix
+drivers is replaced, see the example). That means that you usueally only
+specify the right-hand side of the formula here. However, this is not enforced
+or checked to give you more flexibility over the \code{flexmix} interface}
 
 \item{title}{name of the clustering; used if \code{writeTable = TRUE}}
 
@@ -51,10 +53,6 @@ or \code{centroid}. The default is \code{average}}
 
 \item{seed}{seed for reproducibility}
 
-\item{writeTable}{\code{boolean} if the log and the results should be written
-in a table. If \code{TRUE}, it creates a directory with the name of \code{title}.
-Default is \code{FALSE}}
-
 \item{verbose}{\code{boolean} if status messages should be displayed.
 Default is \code{FALSE}}
 }
@@ -63,7 +61,9 @@ An object (list) of class \code{lcc} with length \code{maxk}.
 The first entry \code{general_information} contains the entries:\tabular{ll}{
 \code{consensus_matrices} \tab a list of all consensus matrices (for all specified clusters) \cr
 \tab \cr
-\code{cluster_assignments} \tab a \code{data.frame} with an ID column named after \code{id_column} and a column for every specified number of clusters, e.g. \code{assignment_num_clus_2}
+\code{cluster_assignments} \tab a \code{data.frame} with an ID column named after \code{id_column} and a column for every specified number of clusters, e.g. \code{assignment_num_clus_2} \cr
+\tab \cr
+\code{call} \tab the call/all arguments how \code{longitudinal_consensus_cluster} was called
 }
 
 The other entries correspond to the number of specified clusters (e.g. the

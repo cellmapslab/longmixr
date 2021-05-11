@@ -20,7 +20,10 @@
 #' @param model_list either one \code{flexmix} driver or a list of \code{flexmix}
 #' drivers of class \code{FLXMR}
 #' @param flexmix_formula a \code{formula} object that describes the \code{flexmix}
-#' model
+#' model relative to the formula in the flexmix drivers (the dot in the flexmix
+#' drivers is replaced, see the example). That means that you usueally only
+#' specify the right-hand side of the formula here. However, this is not enforced
+#' or checked to give you more flexibility over the \code{flexmix} interface
 #' @param title name of the clustering; used if \code{writeTable = TRUE}
 #' @param finalLinkage linkage used for the last hierarchical clustering step on
 #' the consensus matrix; has to be \code{average, ward.D, ward.D2, single, complete, mcquitty, median}
@@ -467,6 +470,8 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     lab <- c(lab, cc[i, 1])
   }
   names(ys) <- lab
+  # no need to store the parameters here, as the original mfrow and mar
+  # parameters are stored and restored on exit already earlier in this function
   par(mfrow = c(3, 1), mar = c(4, 3, 2, 0))
   barplot(ys, col = cs, border = cs, main = "cluster-consensus",
           ylim = c(0, 1), las = 1)
@@ -476,7 +481,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
 #'
 #' In the final step, the consensus clustering performs a hierarchical clustering
 #' step on the consensus cluster. This function tries out different linkage
-#' methods and return the corresponding clusterings. The outputs can be plotted
+#' methods and returns the corresponding clusterings. The outputs can be plotted
 #' like the results from \code{\link{longitudinal_consensus_cluster}}.
 #'
 #' @param results clustering result of class \code{lcc}
