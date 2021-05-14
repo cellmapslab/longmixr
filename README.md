@@ -9,7 +9,6 @@ performed with [`flexmix`](https://cran.r-project.org/package=flexmix). It uses 
 replaces the clustering of the longitudinal data with a `flexmix` model.
 
 ## Installation
-
 You can install phenendo from [github](https://www.github.com) with:
 
 ``` r
@@ -32,8 +31,9 @@ test_data <- data.frame(
 
 In the following approach, the variables `var_1` and `var_2` each are modelled as
 dependent on a smooth function of time, taking the multiple measurements for each
-subject into account. The assumption is that `var_1` and `var_2` are concomitant
-variables. The modelling is specified in the `flexmix` drivers and the `flexmix_formula`:
+subject into account. The assumption is that `var_1` and `var_2` represent a
+multivariate outcome. The modelling is specified in the `flexmix` drivers
+and the `flexmix_formula`:
 
 ``` r
 model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
@@ -50,12 +50,38 @@ clustering <- longitudinal_consensus_cluster(
 The results of the clustering can be assessed via several plots. For every
 specified number of clusters, the consensus matrix and the resulting hierarchical
 clustering on this matrix is shown. Additionally, the consensus CDF and the delta
-Area plots give a measure which number of cluster is optimal and the tracking plot
+Area plots give a measure which number of cluster is optimal. The tracking plot
 gives an overview how the observations are distributed across the different clusters
-for different numbers of specified clusters.
+for different numbers of specified clusters. The item (subject) consensus
+plot shows the average consensus of each subject with all other subjects that
+belong to one cluster. The cluster consensus plot depicts the average consensus
+between all members of each cluster.
 
 ``` r
 plot(clustering)
 ```
+
+## Cross-sectional clustering
+Additionally, this package provides a wrapper function around the
+`ConsensusClusterPlus` function to work with mixed continuous and categorical
+data (by using the Gower distance):
+
+``` r
+dc <- mtcars
+# scale continuous variables
+dc <- sapply(mtcars[, 1:7], scale)
+# code factor variables
+dc <- cbind(as.data.frame(dc),
+            vs = as.factor(mtcars$vs),
+            am = as.factor(mtcars$am),
+            gear = as.factor(mtcars$gear),
+            carb = as.factor(mtcars$carb))
+cc <- crosssectional_consensus_cluster(
+  data = dc,
+  reps = 10,
+  seed = 1
+)
+```
+
 ## Attribution
 The package is based on the code of [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html).
