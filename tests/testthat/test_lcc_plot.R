@@ -31,8 +31,16 @@ save_png <- function(code, width = 400, height = 3200) {
   path
 }
 
+test_that("a plot is generated in the CI", {
+  skip_if_not(isTRUE(as.logical(Sys.getenv("CI"))),
+              message = "simple plot generation only tested on CI")
+  test_plot <- plot(clustering)
+  expect_equal(test_plot, matrix(c(0.7, 1.9, 3.1, 4.3, 5.5, 6.7, 7.9),
+                                 nrow = 7))
+})
 
 test_that("the plots stay the same", {
+  skip_on_ci()
   expect_snapshot_file(save_png(plot(clustering)), "plot_lcc_output.png")
 })
 
