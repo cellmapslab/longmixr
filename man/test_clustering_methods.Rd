@@ -24,7 +24,7 @@ named after the used linkage method.
 \description{
 In the final step, the consensus clustering performs a hierarchical clustering
 step on the consensus cluster. This function tries out different linkage
-methods and return the corresponding clusterings. The outputs can be plotted
+methods and returns the corresponding clusterings. The outputs can be plotted
 like the results from \code{\link{longitudinal_consensus_cluster}}.
 }
 \examples{

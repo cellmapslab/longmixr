@@ -7,7 +7,6 @@
 crosssectional_consensus_cluster(
   data,
   reps = 1000,
-  distance = "StatMatch::gower.dist",
   finalLinkage = "ward.D2",
   innerLinkage = "ward.D2",
   ...
@@ -18,10 +17,6 @@ crosssectional_consensus_cluster(
 for computing the distance. This argument is passed to \code{StatMatch::gower.dist}}
 
 \item{reps}{number of repetitions, same as in \code{ConsensusClusterPlus}}
-
-\item{distance}{name of the distance function used; as we directly provide
-a distance object to the \code{d} argument of \code{ConsensusClusterPlus},
-this argument has no function}
 
 \item{finalLinkage}{linkage method for final clustering,
 same as in \code{ConsensusClusterPlus}same as in \code{ConsensusClusterPlus}}
@@ -39,7 +34,7 @@ The output is produced by \code{ConsensusClusterPlus}
 \description{
 This function uses the \code{ConsensusClusterPlus} function from the package
 with the same name with defaults for clustering data with categorical
-variables.
+variables. As the distance function, the Gower distance is used.
 }
 \examples{
 dc <- mtcars

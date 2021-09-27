@@ -2,7 +2,7 @@
 #'
 #' This function uses the \code{ConsensusClusterPlus} function from the package
 #' with the same name with defaults for clustering data with categorical
-#' variables.
+#' variables. As the distance function, the Gower distance is used.
 #'
 #' @param data a matrix or data.frame containing variables that should be used
 #' for computing the distance. This argument is passed to \code{StatMatch::gower.dist}
