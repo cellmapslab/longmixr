@@ -70,7 +70,7 @@ connectivity_matrix <- function(clusterAssignments,
 #' @return matrix; if \code{mode = 1} return the lower triangle as vector;
 #' if \code{mode = 2} return the transformed upper triangle (so that it is the lower one now)
 #' as a matrix with the rest of the entries as \code{NA}; if \code{mode = 3}
-#' return a matrix where the lower triangle is replaced by the upper triangle
+#' return a matrix where the lower left triangle is replaced by the upper right triangle
 triangle <- function(m,
                      mode = 1) {
   n = dim(m)[1]

@@ -13,9 +13,9 @@
 #' \code{flexmix_formula}.
 #' @param id_column name (character vector) of the ID column in \code{data} to
 #' identify all observations of one subject
-#' @param maxK maximum number of clusters, default is \code{3}
+#' @param max_k maximum number of clusters, default is \code{3}
 #' @param reps number of repetitions, default is \code{10}
-#' @param pItem fraction of samples contained in subsampled sample, default is
+#' @param p_item fraction of samples contained in subsampled sample, default is
 #' \code{0.8}
 #' @param model_list either one \code{flexmix} driver or a list of \code{flexmix}
 #' drivers of class \code{FLXMR}
@@ -72,7 +72,7 @@
 #' clustering <- longitudinal_consensus_cluster(
 #' data = test_data,
 #' id_column = "patient_id",
-#' maxK = 2,
+#' max_k = 2,
 #' reps = 3,
 #' model_list = model_list,
 #' flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
@@ -81,9 +81,9 @@
 #' # end not run
 longitudinal_consensus_cluster <- function(data = NULL,
                                            id_column = NULL,
-                                           maxK = 3,
+                                           max_k = 3,
                                            reps = 10,
-                                           pItem = 0.8,
+                                           p_item = 0.8,
                                            model_list = NULL,
                                            flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"),
                                            title = "untitled_consensus_cluster",
@@ -99,9 +99,9 @@ longitudinal_consensus_cluster <- function(data = NULL,
   checkmate::assert_character(id_column, len = 1, any.missing = FALSE)
   checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = 1)
   checkmate::assert_choice(id_column, colnames(data))
-  checkmate::assert_integerish(maxK, len = 1, lower = 2)
+  checkmate::assert_integerish(max_k, len = 1, lower = 2)
   checkmate::assert_count(reps, positive = TRUE)
-  checkmate::assert_number(pItem, lower = 1 / nrow(data), upper = 1)
+  checkmate::assert_number(p_item, lower = 1 / nrow(data), upper = 1)
   # model_list can be either a list of flexmix drivers or a single flexmix
   # driver
   checkmate::assert(checkmate::check_list(model_list, types = "FLXMR"),
@@ -116,9 +116,9 @@ longitudinal_consensus_cluster <- function(data = NULL,
   # perform the longitudinal clustering to create the consensus matrices
   results <- lcc_run(data = data,
                      id_column = id_column,
-                     maxK = maxK,
+                     maxK = max_k,
                      reps = reps,
-                     pItem = pItem,
+                     pItem = p_item,
                      model_list = model_list,
                      flexmix_formula = flexmix_formula,
                      verbose = verbose)
@@ -127,24 +127,25 @@ longitudinal_consensus_cluster <- function(data = NULL,
   flexmix_found_clusters <- results[["found_number_clusters"]]
 
   # generate the consensus clustering on the consensus matrices
-  res <- vector(mode = "list", length = maxK)
-  for (tk in 2:maxK) {
+  # (last clustering step)
+  res <- vector(mode = "list", length = max_k)
+  # do the final clustering for every specified number of clusters
+  for (cluster_index in 2:max_k) {
     if (verbose) {
-      message(paste("consensus ", tk))
+      message(paste("consensus ", cluster_index))
     }
-    fm <- consensus_matrices[[tk]]
-    hc <- hclust(as.dist(1 - fm), method = finalLinkage)
+    consensus_matrix <- consensus_matrices[[cluster_index]]
+    hc_tree <- hclust(as.dist(1 - consensus_matrix), method = finalLinkage)
     if (verbose) {
       message("clustered")
     }
-    ct <- cutree(hc, tk)
-    names(ct) <- sort(unique(data[, id_column]))
-    c <- fm
+    cut_tree_groups <- cutree(hc_tree, cluster_index)
+    names(cut_tree_groups) <- sort(unique(data[, id_column]))
 
-    res[[tk]] <- list(consensusMatrix = c,
-                      consensusTree = hc,
-                      consensusClass = ct,
-                      found_flexmix_clusters = flexmix_found_clusters[[tk]])
+    res[[cluster_index]] <- list(consensusMatrix = consensus_matrix,
+                                 consensusTree = hc_tree,
+                                 consensusClass = cut_tree_groups,
+                                 found_flexmix_clusters = flexmix_found_clusters[[cluster_index]])
   }
 
   # generate a data.frame with all cluster assignments for the subjects
@@ -173,52 +174,56 @@ longitudinal_consensus_cluster <- function(data = NULL,
 #' }
 lcc_run <- function(data,
                     id_column,
-                    maxK,
+                    max_k,
                     reps,
-                    pItem,
+                    p_item,
                     model_list,
                     flexmix_formula,
                     verbose) {
   # internal function, therefore no input checks
 
   m <- vector(mode = "list", reps)
-  connectivity_results <- vector(mode = "list", maxK)
+  connectivity_results <- vector(mode = "list", max_k)
   # get the number of unique patients
   unique_patient_ids <- sort(unique(data[, id_column]))
   n <- length(unique_patient_ids)
-  mCount <- mConsist <- matrix(0, ncol = n, nrow = n)
+  # initialise the connectivity matrix
+  sample_count_matrix <- matrix(0, ncol = n, nrow = n)
   # be lazy and initialise the list with 0, because the first element corresponds
   # to a cluster size of 1
   connectivity_results[[1]] = 0
   # initialise list for found number of clusters
-  found_number_clusters <- vector(mode = "list", maxK)
+  found_number_clusters <- vector(mode = "list", max_k)
 
   for (i in 1:reps) {
     if (verbose) {
       message(paste("random subsample", i))
     }
     sample_x = sample_patients(data = data,
-                               pSamp = pItem,
+                               pSamp = p_item,
                                id_column = id_column)
 
-    # save the matrix how often a combination of 2 samples occurred
-    mCount <- connectivity_matrix(clusterAssignments = rep(1,
-                                                           length(sample_x[["sample_patients"]])),
-                                  current_matrix = mCount,
-                                  matrix_names = unique_patient_ids,
-                                  sampleKey = sample_x[["sample_patients"]])
+    # save the matrix how often a combination of 2 samples occurred in this
+    # subsampled data set to correct that not all samples are contained in the
+    # subsample
+    sample_count_matrix <- connectivity_matrix(clusterAssignments =
+                                                         rep(1, length(sample_x[["sample_patients"]])),
+                                                       current_matrix = sample_count_matrix,
+                                                       matrix_names = unique_patient_ids,
+                                                       sampleKey = sample_x[["sample_patients"]])
 
     # cluster the subsampled data
     fitted_models <- flexmix::stepFlexmix(formula = flexmix_formula,
                                           data = sample_x[["subsample"]],
-                                          k = seq(from = 2, to = maxK, by = 1),
+                                          k = seq(from = 2, to = max_k, by = 1),
                                           model = model_list,
                                           nrep = 1)
 
-    for (k in seq(from = 2, to = maxK, by = 1)) {
+    for (cluster_index in seq(from = 2, to = max_k, by = 1)) {
 
       if (i == 1) {
-        connectivity_results[[k]] <- mConsist
+        # initialise the connectivity matrix during the first time
+        connectivity_results[[cluster_index]] <- matrix(0, ncol = n, nrow = n)
       }
 
       # extract the cluster assignments from flexmix
@@ -226,12 +231,12 @@ lcc_run <- function(data,
         # when more than 1 cluster values are specified, the returned value is
         # a stepFlexmix object and the models can be accessed by the cluster
         # number
-        assignment_all_values <- fitted_models@models[[as.character(k)]]@cluster
+        assignment_all_values <- fitted_models@models[[as.character(cluster_index)]]@cluster
         # extract the actual found number of clusters (as flexmix might find
         # a cluster solution with less clusters than specified)
-        actual_number_found_clusters <- fitted_models@models[[as.character(k)]]@k
+        actual_number_found_clusters <- fitted_models@models[[as.character(cluster_index)]]@k
 
-      } else if (inherits(fitted_models, "flexmix") && fitted_models@k == as.integer(k)) {
+      } else if (inherits(fitted_models, "flexmix") && fitted_models@k == as.integer(cluster_index)) {
         # if only one cluster value was used during fitting (i.e. only k=2)
         assignment_all_values <- fitted_models@cluster
         actual_number_found_clusters <- fitted_models@k
@@ -247,23 +252,26 @@ lcc_run <- function(data,
       merged_data <- merged_data[!duplicated(merged_data[, "patient_id"]), ]
 
       # update the connectivity matrix
-      connectivity_results[[k]] <- connectivity_matrix(clusterAssignments = merged_data$cluster,
-                                                       current_matrix = connectivity_results[[k]],
-                                                       matrix_names = unique_patient_ids,
-                                                       sampleKey = merged_data$patient_id)
+      connectivity_results[[cluster_index]] <- connectivity_matrix(clusterAssignments = merged_data$cluster,
+                                                                   current_matrix = connectivity_results[[cluster_index]],
+                                                                   matrix_names = unique_patient_ids,
+                                                                   sampleKey = merged_data$patient_id)
       # store the found number of clusters
-      found_number_clusters[[k]] <- c(found_number_clusters[[k]],
-                                      actual_number_found_clusters)
+      found_number_clusters[[cluster_index]] <- c(found_number_clusters[[cluster_index]],
+                                                  actual_number_found_clusters)
     }
   }
 
-  # calculate the final consensus matrices
-  res <- vector(mode = "list", maxK)
-  for (k in 2:maxK) {
-    tmp = triangle(connectivity_results[[k]], mode = 3)
-    tmpCount = triangle(mCount, mode = 3)
-    res[[k]] = tmp / tmpCount
-    res[[k]][which(tmpCount == 0)] = 0
+  # calculate the final consensus matrices/fraction
+  res <- vector(mode = "list", max_k)
+  for (cluster_index in 2:max_k) {
+    tmp <- triangle(connectivity_results[[cluster_index]], mode = 3)
+    tmp_count <- triangle(sample_count_matrix, mode = 3)
+    # tmp is a matrix of counts how often each pair of samples is in one cluster
+    # temp_count is a matrix of counts how often (maximum) each pair of samples
+    # could have been in a cluster
+    res[[cluster_index]] <- tmp / tmp_count
+    res[[cluster_index]][which(tmp_count == 0)] <- 0
   }
 
   list(consensus_matrices = res,
@@ -311,6 +319,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
                "#85848f", "#000000", "#076f25", "#93cd7f", "#4d0776",
                "#ffffff")
 
+  # set up the plot scale
   colBreaks <- NA
   if (is.null(tmyPal)) {
     colBreaks <- 10
@@ -350,6 +359,8 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     found_flexmix_clusters <- x[[tk]][["found_flexmix_clusters"]]
     median_found_flexmix_clusters <- median(found_flexmix_clusters)
 
+    # for every cluster solution except the first define the previous consensus
+    # class so that the colours are assigned correctly across plots
     if (tk == 2) {
       past_c_class <- NULL
     } else {
@@ -360,6 +371,8 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
                                   thisPal,
                                   colorList)
 
+    # row ordered matrix for plotting with additional row of 0s (as in the
+    # original ConsensusClusterPlus code)
     plot_c_matrix <- rbind(c_matrix[c_tree$order, ], 0)
 
     heatmap(plot_c_matrix,
@@ -418,6 +431,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
       items <- which(c_class == ci)
       nk <- length(items)
       mk <- sum(c_matrix[items, items], na.rm = TRUE) / ((nk * (nk - 1)) / 2)
+      # cluster consensus
       cc <- rbind(cc, c(tk, ci, mk))
       for (ei in rev(x[[2]]$consensusTree$order)) {
         denom <- if (ei %in% items) {
@@ -426,13 +440,17 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
         else {
           nk
         }
+        # mean item consensus to a cluster
         mei <- sum(c(c_matrix[ei, items], c_matrix[items, ei]), na.rm = TRUE) /
           denom
+        # add a new row with cluster, cluster index, item index, item consensus
         cci <- rbind(cci, c(tk, ci, ei, mei))
       }
       eiCols <- c(eiCols, rep(ci, length(c_class)))
     }
+    # only plot the new tk data
     cck <- cci[which(cci[, 1] == tk), ]
+    # group by item, order by cluster i
     w <- lapply(split(cck, cck[, 3]), function(x) {
       y <- matrix(unlist(x), ncol = 4)
       y[order(y[, 2]), 4]
@@ -440,7 +458,11 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
 
     # set up the matrix for plotting
     q <- matrix(as.numeric(unlist(w)), ncol = length(w), byrow = FALSE)
+    # order by leave order of tk = 2
     q <- q[, x[[2]]$consensusTree$order]
+    # this results in q: a matrix of tk rows and sample columns, values are
+    # item consensus of sample to the cluster
+
     # it needs to be colorM[tk - 1, ] because the first element in
     # colorM refers to tk (so for 2 clusters, the information is stored in the
     # first entry and not in the second)

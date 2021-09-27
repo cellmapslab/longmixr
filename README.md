@@ -2,6 +2,7 @@
 # phenendo
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/jhagenberg/phenendo/workflows/R-CMD-check/badge.svg)](https://github.com/jhagenberg/phenendo/actions)
 <!-- badges: end -->
 
 The goal of phenendo is to provide consensus clustering for longitudinal clustering
