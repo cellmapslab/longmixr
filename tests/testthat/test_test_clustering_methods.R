@@ -11,7 +11,7 @@ model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
 clustering <- longitudinal_consensus_cluster(
   data = test_data,
   id_column = "patient_id",
-  maxK = 2,
+  max_k = 2,
   reps = 3,
   model_list = model_list
 )

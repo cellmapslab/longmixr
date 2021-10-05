@@ -12,7 +12,7 @@ model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
 clustering <- longitudinal_consensus_cluster(
   data = test_data,
   id_column = "patient_id",
-  maxK = 3,
+  max_k = 3,
   reps = 3,
   model_list = model_list
 )
@@ -56,14 +56,14 @@ test_that("the general_information/cluster_assignments object has the correct fo
 })
 
 test_that("the entries for every number of clusters have the correct format", {
-  expect_named(clustering[[2]], c("consensusMatrix", "consensusTree",
-                                  "consensusClass", "found_flexmix_clusters"))
-  expect_identical(clustering[[2]][["consensusMatrix"]],
+  expect_named(clustering[[2]], c("consensus_matrix", "consensus_tree",
+                                  "consensus_class", "found_flexmix_clusters"))
+  expect_identical(clustering[[2]][["consensus_matrix"]],
                    clustering[["general_information"]][["consensus_matrices"]][[2]])
-  expect_s3_class(clustering[[2]][["consensusTree"]], "hclust")
-  expect_vector(clustering[[2]][["consensusClass"]], integer(), 15)
-  expect_true(max(clustering[[2]][["consensusClass"]]) <= 2)
-  expect_true(max(clustering[[3]][["consensusClass"]]) <= 3)
+  expect_s3_class(clustering[[2]][["consensus_tree"]], "hclust")
+  expect_vector(clustering[[2]][["consensus_class"]], integer(), 15)
+  expect_true(max(clustering[[2]][["consensus_class"]]) <= 2)
+  expect_true(max(clustering[[3]][["consensus_class"]]) <= 3)
   expect_vector(clustering[[2]][["found_flexmix_clusters"]], integer(), 3)
   expect_true(max(clustering[[2]][["found_flexmix_clusters"]]) <= 2)
   expect_true(max(clustering[[3]][["found_flexmix_clusters"]]) <= 3)

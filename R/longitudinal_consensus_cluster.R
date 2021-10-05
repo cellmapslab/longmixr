@@ -25,7 +25,7 @@
 #' specify the right-hand side of the formula here. However, this is not enforced
 #' or checked to give you more flexibility over the \code{flexmix} interface
 #' @param title name of the clustering; used if \code{writeTable = TRUE}
-#' @param finalLinkage linkage used for the last hierarchical clustering step on
+#' @param final_linkage linkage used for the last hierarchical clustering step on
 #' the consensus matrix; has to be \code{average, ward.D, ward.D2, single, complete, mcquitty, median}
 #' or \code{centroid}. The default is \code{average}
 #' @param seed seed for reproducibility
@@ -44,11 +44,11 @@
 #' The other entries correspond to the number of specified clusters (e.g. the
 #' second entry corresponds to 2 specified clusters) and each contains a list with the
 #' following entries:\tabular{ll}{
-#'    \code{consensusMatrix} \tab the consensus matrix \cr
+#'    \code{consensus_matrix} \tab the consensus matrix \cr
 #'    \tab \cr
-#'    \code{consensusTree} \tab the result of the hierarchical clustering on the consensus matrix \cr
+#'    \code{consensus_tree} \tab the result of the hierarchical clustering on the consensus matrix \cr
 #'    \tab \cr
-#'    \code{consensusClass} \tab the resulting class for every observation \cr
+#'    \code{consensus_class} \tab the resulting class for every observation \cr
 #'    \tab \cr
 #'    \code{found_flexmix_clusters} \tab a vector of the actual found number of clusters by \code{flexmix} (which can deviate from the specified number)
 #' }
@@ -87,7 +87,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
                                            model_list = NULL,
                                            flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"),
                                            title = "untitled_consensus_cluster",
-                                           finalLinkage = c("average", "ward.D", "ward.D2", "single", "complete",
+                                           final_linkage = c("average", "ward.D", "ward.D2", "single", "complete",
                                                             "mcquitty", "median", "centroid"),
                                            seed = 3794,
                                            verbose = FALSE) {
@@ -108,7 +108,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
                     checkmate::check_class(model_list, "FLXMR"))
   checkmate::assert_class(flexmix_formula, "formula")
   checkmate::assert_character(title, len = 1)
-  finalLinkage <- match.arg(finalLinkage)
+  final_linkage <- match.arg(final_linkage)
   checkmate::assert_logical(verbose, len = 1)
 
   call <- match.call()
@@ -116,9 +116,9 @@ longitudinal_consensus_cluster <- function(data = NULL,
   # perform the longitudinal clustering to create the consensus matrices
   results <- lcc_run(data = data,
                      id_column = id_column,
-                     maxK = max_k,
+                     max_k = max_k,
                      reps = reps,
-                     pItem = p_item,
+                     p_item = p_item,
                      model_list = model_list,
                      flexmix_formula = flexmix_formula,
                      verbose = verbose)
@@ -135,16 +135,16 @@ longitudinal_consensus_cluster <- function(data = NULL,
       message(paste("consensus ", cluster_index))
     }
     consensus_matrix <- consensus_matrices[[cluster_index]]
-    hc_tree <- hclust(as.dist(1 - consensus_matrix), method = finalLinkage)
+    hc_tree <- hclust(as.dist(1 - consensus_matrix), method = final_linkage)
     if (verbose) {
       message("clustered")
     }
     cut_tree_groups <- cutree(hc_tree, cluster_index)
     names(cut_tree_groups) <- sort(unique(data[, id_column]))
 
-    res[[cluster_index]] <- list(consensusMatrix = consensus_matrix,
-                                 consensusTree = hc_tree,
-                                 consensusClass = cut_tree_groups,
+    res[[cluster_index]] <- list(consensus_matrix = consensus_matrix,
+                                 consensus_tree = hc_tree,
+                                 consensus_class = cut_tree_groups,
                                  found_flexmix_clusters = flexmix_found_clusters[[cluster_index]])
   }
 
@@ -161,7 +161,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
   return(res)
 }
 
-#' Main function to run the longitudincal clustering
+#' Main function to run the longitudinal clustering
 #'
 #' Internal function to actually perform the clustering
 #'
@@ -352,9 +352,9 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   # for every cluster, calculate the correct colours for every observation
   for (tk in seq(from = 2, to = length(x), by = 1)) {
 
-    c_matrix <- x[[tk]][["consensusMatrix"]]
-    c_tree <- x[[tk]][["consensusTree"]]
-    c_class <- x[[tk]][["consensusClass"]]
+    c_matrix <- x[[tk]][["consensus_matrix"]]
+    c_tree <- x[[tk]][["consensus_tree"]]
+    c_class <- x[[tk]][["consensus_class"]]
 
     found_flexmix_clusters <- x[[tk]][["found_flexmix_clusters"]]
     median_found_flexmix_clusters <- median(found_flexmix_clusters)
@@ -364,7 +364,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     if (tk == 2) {
       past_c_class <- NULL
     } else {
-      past_c_class <- x[[tk - 1]][["consensusClass"]]
+      past_c_class <- x[[tk - 1]][["consensus_class"]]
     }
     colorList <- setClusterColors(past_c_class,
                                   c_class,
@@ -400,7 +400,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
 
   CDF(x[["general_information"]][["consensus_matrices"]])
   n_last_element <- length(x)
-  colour_tracking_matrix <- colorM[, x[[n_last_element]]$consensusTree$order]
+  colour_tracking_matrix <- colorM[, x[[n_last_element]]$consensus_tree$order]
   # if only 2 clusters were specified, colour_tracking_matrix is not a matrix
   # but a vector -> then the plot doesn't work -> transform
   if (!is.matrix(colour_tracking_matrix) && n_last_element == 2) {
@@ -420,8 +420,8 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   on.exit(par(old_par))
   for (tk in seq(from = 2, to = length(x), by = 1)) {
     eiCols <- c()
-    c_matrix <- x[[tk]][["consensusMatrix"]]
-    c_class <- x[[tk]][["consensusClass"]]
+    c_matrix <- x[[tk]][["consensus_matrix"]]
+    c_class <- x[[tk]][["consensus_class"]]
 
     # for every subject (item), calculate the average consensus value with all
     # subjects who are grouped into one cluster
@@ -433,7 +433,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
       mk <- sum(c_matrix[items, items], na.rm = TRUE) / ((nk * (nk - 1)) / 2)
       # cluster consensus
       cc <- rbind(cc, c(tk, ci, mk))
-      for (ei in rev(x[[2]]$consensusTree$order)) {
+      for (ei in rev(x[[2]]$consensus_tree$order)) {
         denom <- if (ei %in% items) {
           nk - 1
         }
@@ -459,18 +459,18 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     # set up the matrix for plotting
     q <- matrix(as.numeric(unlist(w)), ncol = length(w), byrow = FALSE)
     # order by leave order of tk = 2
-    q <- q[, x[[2]]$consensusTree$order]
+    q <- q[, x[[2]]$consensus_tree$order]
     # this results in q: a matrix of tk rows and sample columns, values are
     # item consensus of sample to the cluster
 
     # it needs to be colorM[tk - 1, ] because the first element in
     # colorM refers to tk (so for 2 clusters, the information is stored in the
     # first entry and not in the second)
-    thisColors <- unique(cbind(x[[tk]]$consensusClass, colorM[tk - 1, ]))
+    thisColors <- unique(cbind(x[[tk]]$consensus_class, colorM[tk - 1, ]))
     thisColors <- thisColors[order(as.numeric(thisColors[, 1])), 2]
     colorsArr <- c(colorsArr, thisColors)
     rankedBarPlot(q, thisColors,
-                  cc = c_class[x[[2]]$consensusTree$order],
+                  cc = c_class[x[[2]]$consensus_tree$order],
                   paste("k=", tk, sep = ""))
   }
 
@@ -530,7 +530,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
 #' clustering <- longitudinal_consensus_cluster(
 #' data = test_data,
 #' id_column = "patient_id",
-#' maxK = 2,
+#' max_k = 2,
 #' reps = 3,
 #' model_list = model_list,
 #' flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
@@ -552,14 +552,14 @@ test_clustering_methods <- function(results,
     curr_res <- list()
     for (tk in seq(from = 2, to = length(results), by = 1)) {
 
-      fm <- results[[tk]][["consensusMatrix"]]
+      fm <- results[[tk]][["consensus_matrix"]]
       hc <- hclust(as.dist(1 - fm), method = current_method)
       ct <- cutree(hc, tk)
-      names(ct) <- names(results[[tk]][["consensusClass"]])
+      names(ct) <- names(results[[tk]][["consensus_class"]])
 
-      curr_res[[tk]] <- list(consensusMatrix = fm,
-                             consensusTree = hc,
-                             consensusClass = ct,
+      curr_res[[tk]] <- list(consensus_matrix = fm,
+                             consensus_tree = hc,
+                             consensus_class = ct,
                              found_flexmix_clusters = results[[tk]][["found_flexmix_clusters"]])
     }
 
@@ -572,7 +572,7 @@ test_clustering_methods <- function(results,
     # gather all consensus matrices to one list
     consensus_matrices <- list()
     for (i in seq(from = 2, to = length(results), by = 1)) {
-      consensus_matrices[[i]] <- curr_res[[i]][["consensusMatrix"]]
+      consensus_matrices[[i]] <- curr_res[[i]][["consensus_matrix"]]
     }
     curr_res[[1]] <- list(consensus_matrices = consensus_matrices,
                           cluster_assignments = assignment_table)

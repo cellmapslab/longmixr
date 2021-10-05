@@ -7,13 +7,13 @@
 longitudinal_consensus_cluster(
   data = NULL,
   id_column = NULL,
-  maxK = 3,
+  max_k = 3,
   reps = 10,
-  pItem = 0.8,
+  p_item = 0.8,
   model_list = NULL,
   flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"),
   title = "untitled_consensus_cluster",
-  finalLinkage = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
+  final_linkage = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
   seed = 3794,
   verbose = FALSE
@@ -29,11 +29,11 @@ are no restrictions on the column names, as the model is specified in
 \item{id_column}{name (character vector) of the ID column in \code{data} to
 identify all observations of one subject}
 
-\item{maxK}{maximum number of clusters, default is \code{3}}
+\item{max_k}{maximum number of clusters, default is \code{3}}
 
 \item{reps}{number of repetitions, default is \code{10}}
 
-\item{pItem}{fraction of samples contained in subsampled sample, default is
+\item{p_item}{fraction of samples contained in subsampled sample, default is
 \code{0.8}}
 
 \item{model_list}{either one \code{flexmix} driver or a list of \code{flexmix}
@@ -47,7 +47,7 @@ or checked to give you more flexibility over the \code{flexmix} interface}
 
 \item{title}{name of the clustering; used if \code{writeTable = TRUE}}
 
-\item{finalLinkage}{linkage used for the last hierarchical clustering step on
+\item{final_linkage}{linkage used for the last hierarchical clustering step on
 the consensus matrix; has to be \code{average, ward.D, ward.D2, single, complete, mcquitty, median}
 or \code{centroid}. The default is \code{average}}
 
@@ -69,11 +69,11 @@ The first entry \code{general_information} contains the entries:\tabular{ll}{
 The other entries correspond to the number of specified clusters (e.g. the
 second entry corresponds to 2 specified clusters) and each contains a list with the
 following entries:\tabular{ll}{
-\code{consensusMatrix} \tab the consensus matrix \cr
+\code{consensus_matrix} \tab the consensus matrix \cr
 \tab \cr
-\code{consensusTree} \tab the result of the hierarchical clustering on the consensus matrix \cr
+\code{consensus_tree} \tab the result of the hierarchical clustering on the consensus matrix \cr
 \tab \cr
-\code{consensusClass} \tab the resulting class for every observation \cr
+\code{consensus_class} \tab the resulting class for every observation \cr
 \tab \cr
 \code{found_flexmix_clusters} \tab a vector of the actual found number of clusters by \code{flexmix} (which can deviate from the specified number)
 }
@@ -98,7 +98,7 @@ flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
 clustering <- longitudinal_consensus_cluster(
 data = test_data,
 id_column = "patient_id",
-maxK = 2,
+max_k = 2,
 reps = 3,
 model_list = model_list,
 flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))

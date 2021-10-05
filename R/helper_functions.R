@@ -238,7 +238,7 @@ myPal <- function(n = 10) {
 #' @param results result list where the first entry is ignored and the other
 #' entries respond to the number of specified clusters (the kth entry means
 #' k specified clusters); every entry needs to contain the entry
-#' \code{consensusClass}. The cluster assignments need to have the subject
+#' \code{consensus_class}. The cluster assignments need to have the subject
 #' name as attribute
 #' @param id_column character vector of the ID column in the dataset
 #'
@@ -250,7 +250,7 @@ extract_assignment <- function(results,
   # extract the assignment for every specified number of clusters
   cluster_assignments <- lapply(seq(from = 2, to = length(results), by = 1),
                                 function(i) {
-                                  results[[i]][["consensusClass"]]
+                                  results[[i]][["consensus_class"]]
                                 })
   # generate a data.frame; the rownames are the subject names
   merged_data <- do.call("cbind", cluster_assignments)
