@@ -84,5 +84,8 @@ cc <- crosssectional_consensus_cluster(
 )
 ```
 
-## Attribution
-The package is based on the code of [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html).
+## Copyright
+The package is based on the code of [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html)
+(version 1.52.0). For this code the copyright holders are Matt Wilkerson and
+Peter Waltman. For all subsequent changes the copyright holder is the Max Planck
+Institute of Psychiatry. The code is licensed under GPL v2.
