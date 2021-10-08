@@ -48,9 +48,10 @@ test_that("plot.lcc only uses lcc objects", {
   expect_error(plot.lcc(1:10))
 })
 
-test_that("the tmyPal argument is correct", {
-  expect_error(plot(clustering, tmyPal = 1:10),
-               regexp = "Assertion on 'tmyPal' failed")
+test_that("the color_palette argument is correct", {
+  expect_error(plot(clustering, color_palette = 1:10),
+               regexp = "Assertion on 'color_palette' failed")
 
-  expect_silent(plot(clustering, tmyPal = c("#9999FF", "#7F7FFF", "#6666FF")))
+  expect_silent(plot(clustering,
+                     color_palette = c("#9999FF", "#7F7FFF", "#6666FF")))
 })
