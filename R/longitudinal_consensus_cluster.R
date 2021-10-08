@@ -462,6 +462,8 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     q <- q[, x[[2]]$consensus_tree$order]
     # this results in q: a matrix of tk rows and sample columns, values are
     # item consensus of sample to the cluster
+    # so for a defined possible number of clusters (tk), the values in the rows
+    # are the item consensus for the possible clusters
 
     # it needs to be colorM[tk - 1, ] because the first element in
     # colorM refers to tk (so for 2 clusters, the information is stored in the
@@ -469,9 +471,10 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     thisColors <- unique(cbind(x[[tk]]$consensus_class, colorM[tk - 1, ]))
     thisColors <- thisColors[order(as.numeric(thisColors[, 1])), 2]
     colorsArr <- c(colorsArr, thisColors)
-    rankedBarPlot(q, thisColors,
-                  cc = c_class[x[[2]]$consensus_tree$order],
-                  paste("k=", tk, sep = ""))
+    ranked_bar_plot(item_consensus_matrix = q,
+                    cluster_colors = thisColors,
+                    item_order = c_class[x[[2]]$consensus_tree$order],
+                    title = paste("k=", tk, sep = ""))
   }
 
   ##############################################################################

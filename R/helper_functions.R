@@ -310,35 +310,44 @@ extract_assignment <- function(results,
 
 #' Generate item/subject consensus plot
 #'
-#' Internal function to generate the item consensus plot; taken from \code{ConsensusClusterPlus}.
+#' Internal function to generate the item consensus plot;
+#' adapted from \code{ConsensusClusterPlus}.
 #'
-#' @param d data matrix
-#' @param myc colours for the clusters
-#' @param cc order of the items/subjects as in the solution for 2 clusters
+#' @param item_consensus_matrix matrix where the rows are different clusters,
+#' the columns the samples and the value the item consensus of the sample with
+#' the different clusters
+#' @param cluster_colors colours for the clusters
+#' @param item_order order of the items/subjects as in the solution for 2 clusters
 #' @param title title of the plot
 #'
 #' @return item/subject consensus plot
-rankedBarPlot <- function (d,
-                           myc,
-                           cc,
-                           title) {
-  colors = rbind()
-  byRank = cbind()
-  spaceh = 0.1
-  for (i in 1:ncol(d)) {
-    byRank = cbind(byRank, sort(d[, i], na.last = F))
-    colors = rbind(colors, order(d[, i], na.last = F))
+ranked_bar_plot <- function(item_consensus_matrix,
+                            cluster_colors,
+                            item_order,
+                            title) {
+  colors <- rbind()
+  by_rank <- cbind()
+  # space between bars
+  spaceh <- 0.1
+  # for every item, bring the data into the correct format
+  for (i in 1:ncol(item_consensus_matrix)) {
+    by_rank <- cbind(by_rank, sort(item_consensus_matrix[, i], na.last = FALSE))
+    colors <- rbind(colors, order(item_consensus_matrix[, i], na.last = FALSE))
   }
-  maxH = max(c(1.5, apply(byRank, 2, sum)), na.rm = T)
-  barp = barplot(apply(byRank, 2, sum), col = myc[colors[, 1]],
-                 space = spaceh, ylim = c(0, maxH),
-                 main = paste("item-consensus", title), border = NA, las = 1)
-  for (i in 2:nrow(byRank)) {
-    barplot(apply(matrix(byRank[i:nrow(byRank), ], ncol = ncol(byRank)),
-                  2, sum), space = spaceh, col = myc[colors[, i]],
-            ylim = c(0, maxH), add = T, border = NA, las = 1)
+  # maximum height of the graph
+  max_h <- max(c(1.5, apply(by_rank, 2, sum)), na.rm = TRUE)
+  # barplot largest to smallest so that the smallest is in front
+  barplot(apply(by_rank, 2, sum), col = cluster_colors[colors[, 1]],
+          space = spaceh, ylim = c(0, max_h),
+          main = paste("item-consensus", title), border = NA, las = 1)
+  for (i in 2:nrow(by_rank)) {
+    barplot(apply(matrix(by_rank[i:nrow(by_rank), ], ncol = ncol(by_rank)),
+                  2, sum), space = spaceh, col = cluster_colors[colors[, i]],
+            ylim = c(0, max_h), add = TRUE, border = NA, las = 1)
   }
-  xr = seq(spaceh, ncol(d) + ncol(d) * spaceh, (ncol(d) + ncol(d) *
-                                                  spaceh)/ncol(d))
-  text("*", x = xr + 0.5, y = maxH, col = myc[cc], cex = 1.4)
+  xr <- seq(spaceh, ncol(item_consensus_matrix) +
+              ncol(item_consensus_matrix) * spaceh,
+            (ncol(item_consensus_matrix) + ncol(item_consensus_matrix) * spaceh) /
+              ncol(item_consensus_matrix))
+  text("*", x = xr + 0.5, y = max_h, col = cluster_colors[item_order], cex = 1.4)
 }
