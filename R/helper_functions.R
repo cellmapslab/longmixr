@@ -221,28 +221,39 @@ set_cluster_colors <- function(past_ct,
 
 #' Generate the tracking plot
 #'
-#' Internal function to generate the tracking plot; taken from \code{ConsensusClusterPlus}.
+#' Internal function to generate the tracking plot;
+#' adapted from \code{ConsensusClusterPlus}.
 #'
-#' @param m list of assigned colours to every observation with one entry per
-#' specified number of cluster
+#' @param assignment_matrix matrix of assigned colours (which here are equal
+#' with cluster assignment) to every observation with one entry per specified
+#' number of cluster (i.e. the rows are the different k and the columns the samples)
 #'
 #' @importFrom graphics rect segments text
 #'
 #' @return tracking plot
-clusterTrackingPlot <- function(m) {
+cluster_tracking_plot <- function(assignment_matrix) {
+  # set up the plot
   plot(NULL, xlim = c(-0.1, 1), ylim = c(0, 1), axes = FALSE,
        xlab = "samples", ylab = "k", main = "tracking plot")
-  for (i in 1:nrow(m)) {
-    rect(xleft = seq(0, 1 - 1/ncol(m), by = 1/ncol(m)), ybottom = rep(1 -
-                                                                        i/nrow(m), ncol(m)), xright = seq(1/ncol(m), 1, by = 1/ncol(m)),
-         ytop = rep(1 - (i - 1)/nrow(m), ncol(m)), col = m[i,
-         ], border = NA)
+
+  for (i in 1:nrow(assignment_matrix)) {
+    rect(xleft = seq(0, 1 - 1 / ncol(assignment_matrix),
+                     by = 1 / ncol(assignment_matrix)),
+         ybottom = rep(1 - i / nrow(assignment_matrix), ncol(assignment_matrix)),
+         xright = seq(1 / ncol(assignment_matrix), 1,
+                      by = 1 / ncol(assignment_matrix)),
+         ytop = rep(1 - (i - 1) / nrow(assignment_matrix),
+                    ncol(assignment_matrix)),
+         col = assignment_matrix[i, ], border = NA)
   }
-  xl = seq(0, 1 - 1/ncol(m), by = 1/ncol(m))
-  segments(xl, rep(-0.1, ncol(m)), xl, rep(0, ncol(m)), col = "black")
-  ypos = seq(1, 0, by = -1/nrow(m)) - 1/(2 * nrow(m))
-  text(x = -0.1, y = ypos[-length(ypos)], labels = seq(2, nrow(m) +
-                                                         1, by = 1))
+  # hatch lines to indicate samples
+  xl <- seq(0, 1 - 1 / ncol(assignment_matrix), by = 1 / ncol(assignment_matrix))
+  segments(xl, rep(-0.1, ncol(assignment_matrix)), xl,
+           rep(0, ncol(assignment_matrix)), col = "black")
+  ypos = seq(1, 0, by = -1 / nrow(assignment_matrix)) -
+    1 / (2 * nrow(assignment_matrix))
+  text(x = -0.1, y = ypos[-length(ypos)],
+       labels = seq(2, nrow(assignment_matrix) + 1, by = 1))
 }
 
 #' Generate colour palette

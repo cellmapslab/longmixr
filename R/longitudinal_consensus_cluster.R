@@ -406,7 +406,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   if (!is.matrix(colour_tracking_matrix) && n_last_element == 2) {
     colour_tracking_matrix <- matrix(colour_tracking_matrix, nrow = 1)
   }
-  clusterTrackingPlot(colour_tracking_matrix)
+  cluster_tracking_plot(colour_tracking_matrix)
 
   ##############################################################################
   # plot the item-consensus
