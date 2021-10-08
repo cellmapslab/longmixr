@@ -200,17 +200,17 @@ lcc_run <- function(data,
       message(paste("random subsample", i))
     }
     sample_x = sample_patients(data = data,
-                               pSamp = p_item,
+                               p_samp = p_item,
                                id_column = id_column)
 
     # save the matrix how often a combination of 2 samples occurred in this
     # subsampled data set to correct that not all samples are contained in the
     # subsample
-    sample_count_matrix <- connectivity_matrix(clusterAssignments =
+    sample_count_matrix <- connectivity_matrix(cluster_assignments =
                                                          rep(1, length(sample_x[["sample_patients"]])),
                                                        current_matrix = sample_count_matrix,
                                                        matrix_names = unique_patient_ids,
-                                                       sampleKey = sample_x[["sample_patients"]])
+                                                       sample_key = sample_x[["sample_patients"]])
 
     # cluster the subsampled data
     fitted_models <- flexmix::stepFlexmix(formula = flexmix_formula,
@@ -252,10 +252,10 @@ lcc_run <- function(data,
       merged_data <- merged_data[!duplicated(merged_data[, "patient_id"]), ]
 
       # update the connectivity matrix
-      connectivity_results[[cluster_index]] <- connectivity_matrix(clusterAssignments = merged_data$cluster,
+      connectivity_results[[cluster_index]] <- connectivity_matrix(cluster_assignments = merged_data$cluster,
                                                                    current_matrix = connectivity_results[[cluster_index]],
                                                                    matrix_names = unique_patient_ids,
-                                                                   sampleKey = merged_data$patient_id)
+                                                                   sample_key = merged_data$patient_id)
       # store the found number of clusters
       found_number_clusters[[cluster_index]] <- c(found_number_clusters[[cluster_index]],
                                                   actual_number_found_clusters)

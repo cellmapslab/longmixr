@@ -5,7 +5,7 @@
 #' \code{ConsensusClusterPlus}.
 #'
 #' @inheritParams longitudinal_consensus_cluster
-#' @param pSamp subsampling fraction, same as \code{pItem}
+#' @param p_samp subsampling fraction, same as \code{p_item}
 #'
 #' @return List with the following entries:\tabular{ll}{
 #'    \code{subsample} \tab \code{data.frame} of the subsample \cr
@@ -13,14 +13,14 @@
 #'    \code{sample_patients} \tab names from the \code{id_column} of the subsampled subjects
 #' }
 sample_patients <- function(data,
-                            pSamp,
+                            p_samp,
                             id_column) {
   # as there are repeated measurements in the data, sample patients and then
   # take all measurements from the sampled patients
   space <- unique(data[, id_column])
   space_dim <- length(space)
-  sampleN <- floor(space_dim * pSamp)
-  sample_patients <- sort(sample(space, sampleN, replace = FALSE))
+  sample_n <- floor(space_dim * p_samp)
+  sample_patients <- sort(sample(space, sample_n, replace = FALSE))
   index <- data[, id_column] %in% sample_patients
   this_sample <- data[index, ]
 
@@ -33,27 +33,30 @@ sample_patients <- function(data,
 #' samples have gotten the same cluster assignment.
 #' Adapted from \code{ConsensusClusterPlus}.
 #'
-#' @param clusterAssignments vector of cluster assignment for every subject
+#' @param cluster_assignments vector of cluster assignment for every subject
 #' @param current_matrix current connectivity matrix
 #' @param matrix_names vector of the names of the rows/columns of the
 #' connectivity matrix; usually the sorted unique names of the subjects
-#' @param sampleKey name of the subjects
+#' @param sample_key name of the subjects
 #'
 #' @return updated connectivity matrix
-connectivity_matrix <- function(clusterAssignments,
+connectivity_matrix <- function(cluster_assignments,
                                 current_matrix,
                                 matrix_names,
-                                sampleKey) {
+                                sample_key) {
 
-  names(clusterAssignments) <- sampleKey
+  names(cluster_assignments) <- sample_key
   # for every cluster, get the list of patient ids that belong to this cluster
-  cls <- lapply(unique(clusterAssignments), function(i) {
-    names(clusterAssignments[clusterAssignments %in% i])
+  cls <- lapply(unique(cluster_assignments), function(i) {
+    names(cluster_assignments[cluster_assignments %in% i])
   })
   for (i in 1:length(cls)) {
     # check which rows/columns of the matrix (specified by matrix_names)
     # belong to the same cluster
     cl <- as.numeric(matrix_names %in% cls[[i]])
+    # product of arrays with * function
+    # with the 1/0 indicator (which sample were observed together), it updates
+    # all cells to indicate the sample pair was observed or not
     updt <- outer(cl, cl)
     current_matrix <- current_matrix + updt
   }
