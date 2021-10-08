@@ -65,27 +65,40 @@ connectivity_matrix <- function(cluster_assignments,
 
 #' Generate triangle matrix
 #'
-#' Internal function to generate a triangle matrix; taken from \code{ConsensusClusterPlus}.
+#' Internal function to generate a triangle matrix;
+#' adapted from \code{ConsensusClusterPlus}.
 #'
-#' @param m matrix
+#' @param input_matrix matrix
 #' @param mode flag which matrix should be returned; can be \code{1, 2} or \code{3}
 #'
 #' @return matrix; if \code{mode = 1} return the lower triangle as vector;
 #' if \code{mode = 2} return the transformed upper triangle (so that it is the lower one now)
 #' as a matrix with the rest of the entries as \code{NA}; if \code{mode = 3}
 #' return a matrix where the lower left triangle is replaced by the upper right triangle
-triangle <- function(m,
+triangle <- function(input_matrix,
                      mode = 1) {
-  n = dim(m)[1]
-  nm = matrix(0, ncol = n, nrow = n)
-  fm = m
-  nm[upper.tri(nm)] = m[upper.tri(m)]
-  fm = t(nm) + nm
-  diag(fm) = diag(m)
-  nm = fm
-  nm[upper.tri(nm)] = NA
-  diag(nm) = NA
-  vm = m[lower.tri(nm)]
+  n <- dim(input_matrix)[1]
+  nm <- matrix(0, ncol = n, nrow = n)
+  fm <- input_matrix
+
+  # only use the upper half
+  nm[upper.tri(nm)] <- input_matrix[upper.tri(input_matrix)]
+  # in fm, the lower half is the same as the upper half
+  fm <- t(nm) + nm
+  diag(fm) <- diag(input_matrix)
+
+  # after the above commands, fm is now a matrix where the lower half is the
+  # same as the upper half and the diagonal is taken from the original matrix
+  # I'm not sure why the original authors did it so complicated as the
+  # connectivity matrices used as input should be symmetrical and therefore
+  # fm should now be in the same format as input_matrix
+
+  # generate a matrix (nm) where only the lower half is left over
+  nm <- fm
+  nm[upper.tri(nm)] <- NA
+  diag(nm) <- NA
+  vm <- input_matrix[lower.tri(nm)]
+
   if (mode == 1) {
     return(vm)
   }
