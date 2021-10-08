@@ -88,7 +88,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
                                            flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"),
                                            title = "untitled_consensus_cluster",
                                            final_linkage = c("average", "ward.D", "ward.D2", "single", "complete",
-                                                            "mcquitty", "median", "centroid"),
+                                                             "mcquitty", "median", "centroid"),
                                            seed = 3794,
                                            verbose = FALSE) {
 
@@ -312,11 +312,11 @@ plot.lcc <- function(x, color_palette = NULL, ...) {
   color_list <- list()
   color_matrix <- NULL
   this_pal <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C",
-               "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6",
-               "#6A3D9A", "#FFFF99", "#B15928", "#bd18ea", "#2ef4ca",
-               "#f4cced", "#f4cc03", "#05188a", "#e5a25a", "#06f106",
-               "#85848f", "#000000", "#076f25", "#93cd7f", "#4d0776",
-               "#ffffff")
+                "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6",
+                "#6A3D9A", "#FFFF99", "#B15928", "#bd18ea", "#2ef4ca",
+                "#f4cced", "#f4cc03", "#05188a", "#e5a25a", "#06f106",
+                "#85848f", "#000000", "#076f25", "#93cd7f", "#4d0776",
+                "#ffffff")
 
   # set up the plot scale
   col_breaks <- NA
@@ -366,9 +366,9 @@ plot.lcc <- function(x, color_palette = NULL, ...) {
       previous_c_class <- x[[tk - 1]][["consensus_class"]]
     }
     color_list <- set_cluster_colors(previous_c_class,
-                                    c_class,
-                                    this_pal,
-                                    color_list)
+                                     c_class,
+                                     this_pal,
+                                     color_list)
 
     # row ordered matrix for plotting with additional row of 0s (as in the
     # original ConsensusClusterPlus code)
