@@ -4,7 +4,7 @@
 \alias{sample_patients}
 \title{Subsample subjects}
 \usage{
-sample_patients(data, pSamp, id_column)
+sample_patients(data, p_samp, id_column)
 }
 \arguments{
 \item{data}{a \code{data.frame} with one or several observations per subject.
@@ -13,7 +13,7 @@ belongs to. This ID column is specified in \code{id_column}. Otherwise, there
 are no restrictions on the column names, as the model is specified in
 \code{flexmix_formula}.}
 
-\item{pSamp}{subsampling fraction, same as \code{pItem}}
+\item{p_samp}{subsampling fraction, same as \code{p_item}}
 
 \item{id_column}{name (character vector) of the ID column in \code{data} to
 identify all observations of one subject}
