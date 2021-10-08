@@ -112,46 +112,55 @@ triangle <- function(input_matrix,
 
 #' Plot the CDFs of consensus clustering
 #'
-#' Internal function to plot the CDFs of the consensus solutions; taken
-#' from \code{ConsensusClusterPlus}.
+#' Internal function to plot the CDFs of the consensus solutions;
+#' adapted from \code{ConsensusClusterPlus}.
 #'
-#' @param ml list of all consensus matrices
+#' @param matrix_list list of all consensus matrices
 #' @param breaks number of breaks
 #'
 #' @importFrom graphics hist lines legend
 #' @importFrom grDevices rainbow
 #'
 #' @return a CDF plot
-CDF <- function(ml,
+CDF <- function(matrix_list,
                 breaks = 100) {
-  plot(c(0), xlim = c(0, 1), ylim = c(0, 1), col = "white",
+  # set up the plot
+  plot(0, xlim = c(0, 1), ylim = c(0, 1), col = "white",
        bg = "white", xlab = "consensus index", ylab = "CDF",
        main = "consensus CDF", las = 2)
-  k = length(ml)
-  this_colors = rainbow(k - 1)
-  areaK = c()
-  for (i in 2:length(ml)) {
-    v = triangle(ml[[i]], mode = 1)
-    h = hist(v, plot = FALSE, breaks = seq(0, 1, by = 1/breaks))
-    h$counts = cumsum(h$counts)/sum(h$counts)
-    thisArea = 0
+
+  k <- length(matrix_list)
+  this_colors <- rainbow(k - 1)
+  area_k <- c()
+  for (i in 2:length(matrix_list)) {
+    # get the lower triangle of the connectivity matrix as a vector
+    v <- triangle(matrix_list[[i]], mode = 1)
+
+    # empirical CDF distribution
+    h <- hist(v, plot = FALSE, breaks = seq(0, 1, by = 1 / breaks))
+    h$counts <- cumsum(h$counts) / sum(h$counts)
+
+    # calculate the area under the CDF curve by the histogram method
+    this_area <- 0
     for (bi in 1:(length(h$breaks) - 1)) {
-      thisArea = thisArea + h$counts[bi] * (h$breaks[bi +
-                                                       1] - h$breaks[bi])
-      bi = bi + 1
+      this_area <- this_area + h$counts[bi] * (h$breaks[bi + 1] - h$breaks[bi])
     }
-    areaK = c(areaK, thisArea)
+    area_k <- c(area_k, this_area)
+    # add the CDF to the plot
     lines(h$mids, h$counts, col = this_colors[i - 1], lwd = 2,
           type = "l")
   }
-  legend(0.8, 0.5, legend = paste(rep("", k - 1), seq(2, k,
-                                                      by = 1), sep = ""), fill = this_colors)
-  deltaK = areaK[1]
-  for (i in 2:(length(areaK))) {
-    deltaK = c(deltaK, (areaK[i] - areaK[i - 1])/areaK[i -
-                                                         1])
+  legend(0.8, 0.5, legend = paste(rep("", k - 1), seq(2, k, by = 1), sep = ""),
+         fill = this_colors)
+
+  # plot the area under the CDF change
+  delta_k <- area_k[1]
+  for (i in 2:(length(area_k))) {
+    # proportional increase relative to the previous k
+    delta_k <- c(delta_k, (area_k[i] - area_k[i - 1]) / area_k[i - 1])
   }
-  plot(1 + (1:length(deltaK)), y = deltaK, xlab = "k", ylab = "relative change in area under CDF curve",
+  plot(1 + (1:length(delta_k)), y = delta_k, xlab = "k",
+       ylab = "relative change in area under CDF curve",
        main = "Delta area", type = "b")
 }
 
