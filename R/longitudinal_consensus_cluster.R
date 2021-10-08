@@ -182,7 +182,6 @@ lcc_run <- function(data,
                     verbose) {
   # internal function, therefore no input checks
 
-  m <- vector(mode = "list", reps)
   connectivity_results <- vector(mode = "list", max_k)
   # get the number of unique patients
   unique_patient_ids <- sort(unique(data[, id_column]))
@@ -207,10 +206,10 @@ lcc_run <- function(data,
     # subsampled data set to correct that not all samples are contained in the
     # subsample
     sample_count_matrix <- connectivity_matrix(cluster_assignments =
-                                                         rep(1, length(sample_x[["sample_patients"]])),
-                                                       current_matrix = sample_count_matrix,
-                                                       matrix_names = unique_patient_ids,
-                                                       sample_key = sample_x[["sample_patients"]])
+                                                 rep(1, length(sample_x[["sample_patients"]])),
+                                               current_matrix = sample_count_matrix,
+                                               matrix_names = unique_patient_ids,
+                                               sample_key = sample_x[["sample_patients"]])
 
     # cluster the subsampled data
     fitted_models <- flexmix::stepFlexmix(formula = flexmix_formula,
@@ -281,7 +280,7 @@ lcc_run <- function(data,
 #' Plot a longitudinal consensus clustering
 #'
 #' @param x \code{lcc} object (output from \code{\link{longitudinal_consensus_cluster}})
-#' @param tmyPal optional character vector of colors for consensus matrix
+#' @param color_palette optional character vector of colors for consensus matrix
 #' @param ... additional parameters for plotting; currently not used
 #'
 #' @return Plots the following plots:\tabular{ll}{
@@ -304,15 +303,15 @@ lcc_run <- function(data,
 #' @importFrom graphics barplot par
 #'
 #' @export
-plot.lcc <- function(x, tmyPal = NULL, ...) {
+plot.lcc <- function(x, color_palette = NULL, ...) {
 
   checkmate::assert_class(x, "lcc")
-  checkmate::assert_character(tmyPal, null.ok = TRUE)
+  checkmate::assert_character(color_palette, null.ok = TRUE)
 
   # set up the colour palette
-  colorList <- list()
-  colorM <- NULL
-  thisPal <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C",
+  color_list <- list()
+  color_matrix <- NULL
+  this_pal <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C",
                "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6",
                "#6A3D9A", "#FFFF99", "#B15928", "#bd18ea", "#2ef4ca",
                "#f4cced", "#f4cc03", "#05188a", "#e5a25a", "#06f106",
@@ -320,13 +319,13 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
                "#ffffff")
 
   # set up the plot scale
-  colBreaks <- NA
-  if (is.null(tmyPal)) {
-    colBreaks <- 10
-    tmyPal <- my_pal(colBreaks)
+  col_breaks <- NA
+  if (is.null(color_palette)) {
+    col_breaks <- 10
+    color_palette <- my_pal(col_breaks)
   }
   else {
-    colBreaks <- length(tmyPal)
+    col_breaks <- length(color_palette)
   }
 
   ##############################################################################
@@ -334,7 +333,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   ##############################################################################
 
   # plot the legend
-  sc <- cbind(seq(0, 1, by = 1 / colBreaks))
+  sc <- cbind(seq(0, 1, by = 1 / col_breaks))
   rownames(sc) <- sc[, 1]
   sc <- cbind(sc, sc)
   heatmap(sc,
@@ -342,10 +341,10 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
           Rowv = NA,
           symm = FALSE,
           scale = "none",
-          col = tmyPal,
+          col = color_palette,
           na.rm = TRUE,
           labRow = rownames(sc),
-          labCol = F,
+          labCol = FALSE,
           main = "consensus matrix legend")
 
   # plot the consensus matrices for every number of clusters
@@ -362,14 +361,14 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     # for every cluster solution except the first define the previous consensus
     # class so that the colours are assigned correctly across plots
     if (tk == 2) {
-      past_c_class <- NULL
+      previous_c_class <- NULL
     } else {
-      past_c_class <- x[[tk - 1]][["consensus_class"]]
+      previous_c_class <- x[[tk - 1]][["consensus_class"]]
     }
-    colorList <- set_cluster_colors(past_c_class,
+    color_list <- set_cluster_colors(previous_c_class,
                                     c_class,
-                                    thisPal,
-                                    colorList)
+                                    this_pal,
+                                    color_list)
 
     # row ordered matrix for plotting with additional row of 0s (as in the
     # original ConsensusClusterPlus code)
@@ -380,18 +379,18 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
             Rowv = NA,
             symm = FALSE,
             scale = "none",
-            col = tmyPal,
+            col = color_palette,
             na.rm = TRUE,
             labRow = FALSE,
             labCol = FALSE,
             margins = c(5, 5),
             main = paste("consensus matrix k=", tk, "; median flexmix clusters: ",
                          median_found_flexmix_clusters, sep = ""),
-            ColSideColors = colorList[[1]])
-    legend("topright", legend = unique(c_class), fill = unique(colorList[[1]]),
+            ColSideColors = color_list[[1]])
+    legend("topright", legend = unique(c_class), fill = unique(color_list[[1]]),
            horiz = FALSE)
 
-    colorM <- rbind(colorM, colorList[[1]])
+    color_matrix <- rbind(color_matrix, color_list[[1]])
   }
 
   ##############################################################################
@@ -400,7 +399,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
 
   CDF(x[["general_information"]][["consensus_matrices"]])
   n_last_element <- length(x)
-  colour_tracking_matrix <- colorM[, x[[n_last_element]]$consensus_tree$order]
+  colour_tracking_matrix <- color_matrix[, x[[n_last_element]]$consensus_tree$order]
   # if only 2 clusters were specified, colour_tracking_matrix is not a matrix
   # but a vector -> then the plot doesn't work -> transform
   if (!is.matrix(colour_tracking_matrix) && n_last_element == 2) {
@@ -412,14 +411,15 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   # plot the item-consensus
   ##############################################################################
 
-  cc <- rbind()
+  cluster_consensus <- rbind()
   cci <- rbind()
   sumx <- list()
-  colorsArr <- c()
+  colors_arr <- c()
   old_par <- par(mfrow = c(3, 1), mar = c(4, 3, 2, 0))
   on.exit(par(old_par))
+  # tk is the number of predefined clusters
   for (tk in seq(from = 2, to = length(x), by = 1)) {
-    eiCols <- c()
+    ei_cols <- c()
     c_matrix <- x[[tk]][["consensus_matrix"]]
     c_class <- x[[tk]][["consensus_class"]]
 
@@ -427,26 +427,30 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     # subjects who are grouped into one cluster
     # do this for every cluster
     c_matrix <- triangle(c_matrix, mode = 2)
-    for (ci in sort(unique(c_class))) {
-      items <- which(c_class == ci)
-      nk <- length(items)
-      mk <- sum(c_matrix[items, items], na.rm = TRUE) / ((nk * (nk - 1)) / 2)
+    # for each cluster in tk/the predefined number of clusters
+    # e.g. for tk = 2, there should be 2 clusters and for both clusters the
+    # mean item consensus is calculated
+    for (cluster_i in sort(unique(c_class))) {
+      items <- which(c_class == cluster_i)
+      n_k <- length(items)
+      mk <- sum(c_matrix[items, items], na.rm = TRUE) / ((n_k * (n_k - 1)) / 2)
       # cluster consensus
-      cc <- rbind(cc, c(tk, ci, mk))
-      for (ei in rev(x[[2]]$consensus_tree$order)) {
-        denom <- if (ei %in% items) {
-          nk - 1
+      cluster_consensus <- rbind(cluster_consensus, c(tk, cluster_i, mk))
+      for (item_i in rev(x[[2]]$consensus_tree$order)) {
+        denom <- if (item_i %in% items) {
+          n_k - 1
         }
         else {
-          nk
+          n_k
         }
         # mean item consensus to a cluster
-        mei <- sum(c(c_matrix[ei, items], c_matrix[items, ei]), na.rm = TRUE) /
-          denom
+        mean_item_consensus <- sum(c(c_matrix[item_i, items],
+                                     c_matrix[items, item_i]),
+                                   na.rm = TRUE) / denom
         # add a new row with cluster, cluster index, item index, item consensus
-        cci <- rbind(cci, c(tk, ci, ei, mei))
+        cci <- rbind(cci, c(tk, cluster_i, item_i, mean_item_consensus))
       }
-      eiCols <- c(eiCols, rep(ci, length(c_class)))
+      ei_cols <- c(ei_cols, rep(cluster_i, length(c_class)))
     }
     # only plot the new tk data
     cck <- cci[which(cci[, 1] == tk), ]
@@ -468,11 +472,11 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     # it needs to be colorM[tk - 1, ] because the first element in
     # colorM refers to tk (so for 2 clusters, the information is stored in the
     # first entry and not in the second)
-    thisColors <- unique(cbind(x[[tk]]$consensus_class, colorM[tk - 1, ]))
-    thisColors <- thisColors[order(as.numeric(thisColors[, 1])), 2]
-    colorsArr <- c(colorsArr, thisColors)
+    this_colors <- unique(cbind(x[[tk]]$consensus_class, color_matrix[tk - 1, ]))
+    this_colors <- this_colors[order(as.numeric(this_colors[, 1])), 2]
+    colors_arr <- c(colors_arr, this_colors)
     ranked_bar_plot(item_consensus_matrix = q,
-                    cluster_colors = thisColors,
+                    cluster_colors = this_colors,
                     item_order = c_class[x[[2]]$consensus_tree$order],
                     title = paste("k=", tk, sep = ""))
   }
@@ -481,25 +485,29 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   # plot the cluster-consensus
   ##############################################################################
 
-  ys <- cs <- lab <- NULL
-  lastk <- cc[1, 1]
-  for (i in seq_len(length(colorsArr))) {
-    if (lastk != cc[i, 1]) {
-      ys <- c(ys, 0, 0)
-      cs <- c(cs, NA, NA)
-      lastk <- cc[i, 1]
-      lab <- c(lab, NA, NA)
+  cluster_consensus_y <- cluster_color <- number_clusters_lab <- NULL
+  # bring the cluster consensus data into the correct format
+  previous_number_cluster <- cluster_consensus[1, 1]
+  for (i in seq_len(length(colors_arr))) {
+    # if the current number of predefined clusters (in the previous loops called
+    # tk) is not the same as the previous, then insert 0s as space between the
+    # different numbers of clusters on the x axis
+    if (previous_number_cluster != cluster_consensus[i, 1]) {
+      cluster_consensus_y <- c(cluster_consensus_y, 0, 0)
+      cluster_color <- c(cluster_color, NA, NA)
+      previous_number_cluster <- cluster_consensus[i, 1]
+      number_clusters_lab <- c(number_clusters_lab, NA, NA)
     }
-    ys <- c(ys, cc[i, 3])
-    cs <- c(cs, colorsArr[i])
-    lab <- c(lab, cc[i, 1])
+    cluster_consensus_y <- c(cluster_consensus_y, cluster_consensus[i, 3])
+    cluster_color <- c(cluster_color, colors_arr[i])
+    number_clusters_lab <- c(number_clusters_lab, cluster_consensus[i, 1])
   }
-  names(ys) <- lab
+  names(cluster_consensus_y) <- number_clusters_lab
   # no need to store the parameters here, as the original mfrow and mar
   # parameters are stored and restored on exit already earlier in this function
   par(mfrow = c(3, 1), mar = c(4, 3, 2, 0))
-  barplot(ys, col = cs, border = cs, main = "cluster-consensus",
-          ylim = c(0, 1), las = 1)
+  barplot(cluster_consensus_y, col = cluster_color, border = cluster_color,
+          main = "cluster-consensus", ylim = c(0, 1), las = 1)
 }
 
 #' Try out different linkage methods
