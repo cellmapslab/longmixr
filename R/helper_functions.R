@@ -167,12 +167,12 @@ CDF <- function(matrix_list,
 #' Assign colours to cluster assignments
 #'
 #' Internal function to assign colours to the cluster assignments;
-#' taken from \code{ConsensusClusterPlus}.
+#' adapted from \code{ConsensusClusterPlus}.
 #'
 #' @param past_ct cluster assignments of the previous clustering (\code{k-1} numbers of clusters)
 #' @param ct current cluster assignments (\code{k} numbers of clusters)
-#' @param colorU vector of colour names
-#' @param colorList results of a previous call to \code{setClusterColors}
+#' @param color_names vector of colour names
+#' @param color_list results of a previous call to \code{set_cluster_colors }
 #'
 #' @return List with the following entries:\tabular{ll}{
 #'    \code{1.} \tab vector of colours for every subject\cr
@@ -181,36 +181,42 @@ CDF <- function(matrix_list,
 #'    \tab \cr
 #'    \code{3.} \tab vector of unique colours in the first list entry
 #' }
-setClusterColors <- function(past_ct,
-                             ct,
-                             colorU,
-                             colorList) {
+set_cluster_colors <- function(past_ct,
+                               ct,
+                               color_names,
+                               color_list) {
 
-  newColors = c()
-  if (length(colorList) == 0) {
-    newColors = colorU[ct]
-    colori = 2
+  new_colors <- c()
+  if (length(color_list) == 0) {
+    new_colors <- color_names[ct]
+    color_i <- 2
   }
   else {
-    newColors = rep(NULL, length(ct))
-    colori = colorList[[2]]
-    mo = table(past_ct, ct)
-    m = mo/apply(mo, 1, sum)
+    new_colors <- rep(NULL, length(ct))
+    color_i <- color_list[[2]]
+    mo <- table(past_ct, ct)
+    m <- mo / apply(mo, 1, sum)
+    # do the following for each cluster
     for (tci in 1:ncol(m)) {
-      maxC = max(m[, tci])
-      pci = which(m[, tci] == maxC)
-      if (sum(m[, tci] == maxC) == 1 & max(m[pci, ]) ==
-          maxC & sum(m[pci, ] == maxC) == 1) {
-        newColors[which(ct == tci)] = unique(colorList[[1]][which(past_ct ==
-                                                                    pci)])
+      max_c <- max(m[, tci])
+      pci <- which(m[, tci] == max_c)
+      # if the new column maximum is unique, the same cell is the row maximum
+      # and is also unique
+      if (sum(m[, tci] == max_c) == 1 &
+          max(m[pci, ]) == max_c &
+          sum(m[pci, ] == max_c) == 1) {
+        # note: the greatest of the previous clusters' members are the greatest
+        # in a current cluster's members
+        new_colors[which(ct == tci)] <-
+          unique(color_list[[1]][which(past_ct == pci)])
       }
       else {
-        colori = colori + 1
-        newColors[which(ct == tci)] = colorU[colori]
+        color_i <- color_i + 1
+        new_colors[which(ct == tci)] <- color_names[color_i]
       }
     }
   }
-  return(list(newColors, colori, unique(newColors)))
+  return(list(new_colors, color_i, unique(new_colors)))
 }
 
 #' Generate the tracking plot

@@ -366,10 +366,10 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
     } else {
       past_c_class <- x[[tk - 1]][["consensus_class"]]
     }
-    colorList <- setClusterColors(past_c_class,
-                                  c_class,
-                                  thisPal,
-                                  colorList)
+    colorList <- set_cluster_colors(past_c_class,
+                                    c_class,
+                                    thisPal,
+                                    colorList)
 
     # row ordered matrix for plotting with additional row of 0s (as in the
     # original ConsensusClusterPlus code)
