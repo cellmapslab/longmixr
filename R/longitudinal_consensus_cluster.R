@@ -323,7 +323,7 @@ plot.lcc <- function(x, tmyPal = NULL, ...) {
   colBreaks <- NA
   if (is.null(tmyPal)) {
     colBreaks <- 10
-    tmyPal <- myPal(colBreaks)
+    tmyPal <- my_pal(colBreaks)
   }
   else {
     colBreaks <- length(tmyPal)

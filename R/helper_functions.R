@@ -258,7 +258,8 @@ cluster_tracking_plot <- function(assignment_matrix) {
 
 #' Generate colour palette
 #'
-#' Internal function to generate colour palette; taken from \code{ConsensusClusterPlus}.
+#' Internal function to generate colour palette;
+#' adapted from \code{ConsensusClusterPlus}.
 #'
 #' @param n number of colours
 #'
@@ -266,10 +267,10 @@ cluster_tracking_plot <- function(assignment_matrix) {
 #'
 #' @return vector of colour hex values where the first is red and the rest different
 #' blue colours
-myPal <- function(n = 10) {
+my_pal <- function(n = 10) {
   seq <- rev(seq(0, 255, by = 255 / (n)))
-  palRGB <- cbind(seq, seq, 255)
-  rgb(palRGB, maxColorValue = 255)
+  pal_RGB <- cbind(seq, seq, 255)
+  rgb(pal_RGB, maxColorValue = 255)
 }
 
 #' Extract one overview assignment table
