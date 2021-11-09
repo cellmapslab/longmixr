@@ -1,0 +1,25 @@
+---
+title: "Example clustering analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example clustering analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(phenendo)
+```
+
+# Introduction
+This vignette gives an overview how to prepare the data for a clustering analysis
+with `phenendo`, do the clustering and analyse the results.
+
+# Data
