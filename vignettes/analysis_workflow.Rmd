@@ -22,6 +22,7 @@ library(ggplot2)
 library(FactoMineR)
 library(factoextra)
 library(lme4)
+library(purrr)
 ```
 
 # Introduction
@@ -368,7 +369,182 @@ data best.
 First extract the cluster information (only for the two cluster solution) from
 the model:
 ```{r}
-cluster_assignments <-
-  cluster_model$general_information$cluster_assignments[, c("ID", "assignment_num_clus_2")]
+cluster_assignments <- get_clusters(cluster_model, number_clusters = 2)
 ```
 
+The extracted assignments `data.frame` also includes the ID column with the name
+specified by the user in the `longitudinal_consensus_cluster` function, so we
+can easily join it with the original data:
+
+```{r}
+original_data <- fake_questionnaire_data %>% 
+  left_join(cluster_assignments, by = "ID")
+cluster_data_resid <- cluster_data_resid %>% 
+  left_join(cluster_assignments, by = "ID")
+```
+
+### Components used in clustering
+Now the components used for the clustering can be visualised as spaghetti plots.
+First, define the plotting function:
+
+```{r}
+plot_spaghetti <- function(data = cluster_data_resid,
+                           num_clus = 2,
+                           var_type = c("quest_A", "quest_B", "quest_C"),
+                           var_nums = 1:3,
+                           scale_arg = "fixed") {
+  var_type <- match.arg(var_type)
+  clus_assign <- paste0("assignment_num_clus_", num_clus)
+  
+  plot_data <- data %>% 
+    pivot_longer(
+      cols = paste0(var_type, "_", var_nums, "_resid"),
+      names_to = "variable"
+    ) %>% 
+    # this step to create a patient_idID per variable is needed, otherwise
+    # ggplot can't differentiate between the different variables
+    mutate(ID = paste0(ID, "_", variable),
+           across(c(visit, variable, ID), as.factor))
+  
+  additional_data <- plot_data %>% 
+    select(visit, value, variable, .data[[clus_assign]]) %>% 
+    group_by(visit, variable, .data[[clus_assign]]) %>% 
+    summarise(mean = mean(value),
+              sd = sd(value)) %>% 
+    mutate(ID = 1)
+  
+  ggplot(data = plot_data) +
+    geom_line(mapping = aes(x = visit, y = value, col = variable, group = ID),
+              alpha = 0.4) +
+    geom_ribbon(data = additional_data,
+                mapping = aes(x = visit, y = mean, ymin = mean - sd, ymax = mean + sd,
+                              fill = variable, group = variable), alpha = 0.3) +
+    geom_line(data = additional_data,
+              mapping = aes(x = visit, y = mean, col = variable, group = variable),
+              size = 2) +
+    facet_wrap(~as.factor(.data[[clus_assign]]), scales = scale_arg) +
+    theme_bw()
+}
+```
+
+Questionnaire A:
+```{r}
+plot_spaghetti(num_clus = 2, var_type = "quest_A", var_nums = 1:3)
+```
+
+Questionnaire B:
+```{r}
+plot_spaghetti(num_clus = 2, var_type = "quest_B", var_nums = 1)
+```
+
+Questionnaire C:
+```{r}
+plot_spaghetti(num_clus = 2, var_type = "quest_C", var_nums = 1)
+```
+
+### Original data
+Most of the original variables are categorical variables. For a better
+visualisation of the change over time, we use alluvial plots and plot every
+item (variable) separately.
+
+Define the plotting function for alluvial plots:
+```{r}
+plot_alluvial <- function(data = original_data,
+                               num_clus = 2,
+                               var_name) {
+  clus_assign <- paste0("assignment_num_clus_", num_clus)
+  
+  p <- data %>% 
+    ggplot(aes(x = visit,
+               stratum = .data[[var_name]],
+               alluvium = ID,
+               fill = .data[[var_name]],
+               label = .data[[var_name]])) +
+    scale_fill_brewer(type = "qual", palette = "Set2") +
+    geom_flow(stat = "alluvium", lode.guidance = "frontback",
+              color = "darkgray") +geom_stratum() +
+    facet_wrap(~as.factor(.data[[clus_assign]])) +
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    ylab("number of subjects") +
+    ggtitle(paste0("Distribution of ", var_name, " across clusters"))
+  
+  print(p)
+}
+```
+
+Questionnaire A:
+```{r}
+colnames(original_data)[grepl("^questionnaire_A", colnames(original_data))] %>% 
+  walk(~plot_alluvial(num_clus = 2, var_name = .x))
+```
+
+Questionnaire B:
+```{r}
+colnames(original_data)[grepl("^questionnaire_B", colnames(original_data))] %>% 
+  walk(~plot_alluvial(num_clus = 2, var_name = .x))
+```
+
+Questionnaire C:
+As questionnaire C contains continuous variables, use again a spaghetti plot:
+```{r}
+# first define plot function similar to the first spaghetti plot function but
+# suited for the original data
+plot_spaghetti_2 <- function(data,
+                             var_name,
+                             num_clus = 2,
+                             scale_arg = "fixed") {
+  
+  clus_assign <- paste0("assignment_num_clus_", num_clus)
+  plot_data <- data %>% 
+    pivot_longer(
+      cols = all_of(var_name),
+      names_to = "variable"
+    ) %>% 
+    # this step to create a ID per variable is needed, otherwise
+    # ggplot can't differentiate between the different variables
+    mutate(ID = paste0(ID, "_", variable),
+           across(c(visit, variable, ID), as.factor))
+  
+  additional_data <- plot_data %>% 
+    select(visit, value, variable, .data[[clus_assign]]) %>% 
+    group_by(visit, variable, .data[[clus_assign]]) %>% 
+    summarise(mean = mean(value, na.rm = TRUE),
+              sd = sd(value, na.rm = TRUE)) %>% 
+    mutate(ID = 1)
+  
+  p <- ggplot(data = plot_data) +
+    geom_line(mapping = aes(x = visit, y = value, col = variable, group = ID),
+              alpha = 0.4) +
+    geom_ribbon(data = additional_data,
+                mapping = aes(x = visit, y = mean, ymin = mean - sd, ymax = mean + sd,
+                              fill = variable, group = variable), alpha = 0.3) +
+    geom_line(data = additional_data,
+              mapping = aes(x = visit, y = mean, col = variable, group = variable),
+              size = 2) +
+    facet_wrap(~as.factor(.data[[clus_assign]]), scales = scale_arg) +
+    theme_bw()
+  
+  plot(p)
+}
+```
+
+```{r}
+colnames(original_data)[grepl("^questionnaire_C", colnames(original_data))] %>% 
+  walk(~plot_spaghetti_2(num_clus = 2, data = original_data, var_name = .x))
+```
+
+The comparison of the two clusters regarding the original variables show
+differences how some items of the categorical questionnaires and some variables
+of the continuous questionnaires differ between the two clusters.
+
+### Data not used in clustering
+As a final step, variables that were not used in the clustering can be compared
+across the found clusters. In this case, `single_continuous_variable` was left
+out from the clustering:
+
+```{r}
+plot_spaghetti_2(data = original_data, var_name = "single_continuous_variable")
+```
+
+Also this variable shows a quite different behaviour between the two clusters.
