@@ -157,6 +157,11 @@ longitudinal_consensus_cluster <- function(data = NULL,
                    call = call)
   names(res)[1] <- "general_information"
 
+  # create meaningful names for the different clustering solutions
+  if (length(res) > 1) {
+    names(res)[-1] <- paste0("cluster_", seq(from = 2, to = length(res), by = 1))
+  }
+
   class(res) <- c("lcc", class(res))
   return(res)
 }

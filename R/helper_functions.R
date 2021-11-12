@@ -351,3 +351,66 @@ ranked_bar_plot <- function(item_consensus_matrix,
               ncol(item_consensus_matrix))
   text("*", x = xr + 0.5, y = max_h, col = cluster_colors[item_order], cex = 1.4)
 }
+
+#' Extract the cluster assignments
+#'
+#' This functions extracts the cluster assignments from an \code{lcc} object.
+#' One can specify which for which number of clusters the assignments
+#' should be returned.
+#'
+#' @param cluster_solution an \code{lcc} object
+#' @param number_clusters default is \code{NULL} to return all assignments.
+#' Otherwise specify a numeric vector with the number of clusters for which the
+#' assignments should be returned, e.g. \code{2:4}
+#'
+#' @return a \code{data.frame} with an ID column (the name of the ID column
+#' was specified by the user when calling the
+#' \code{longitudinal_consensus_cluster}) function and one column with cluster
+#' assignments for every specified number of clusters. Only the assignments
+#' included in \code{number_clusters} are returned in the form of columns with
+#' the names \code{assignment_num_clus_x}
+#' @export
+#'
+#' @examples
+#' # not run
+#' set.seed(5)
+#' test_data <- data.frame(patient_id = rep(1:10, each = 4),
+#' visit = rep(1:4, 10),
+#' var_1 = c(rnorm(20, -1), rnorm(20, 3)) +
+#' rep(seq(from = 0, to = 1.5, length.out = 4), 10),
+#' var_2 = c(rnorm(20, 0.5, 1.5), rnorm(20, -2, 0.3)) +
+#' rep(seq(from = 1.5, to = 0, length.out = 4), 10))
+#' model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
+#' flexmix::FLXMRmgcv(as.formula("var_2 ~ .")))
+#' clustering <- longitudinal_consensus_cluster(
+#' data = test_data,
+#' id_column = "patient_id",
+#' maxK = 2,
+#' reps = 3,
+#' model_list = model_list,
+#' flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
+#' cluster_assignments <- get_clusters(clustering, number_clusters = 2)
+#' # end not run
+get_clusters <- function(cluster_solution,
+                         number_clusters = NULL) {
+  checkmate::assert_class(cluster_solution, "lcc")
+  cluster_assignments <-
+    cluster_solution$general_information$cluster_assignments
+  checkmate::assert_numeric(number_clusters,
+                            lower = 2,
+                            upper = ncol(cluster_assignments),
+                            null.ok = TRUE,
+                            any.missing = FALSE,
+                            all.missing = FALSE,
+                            unique = TRUE)
+
+  if (is.null(number_clusters)) {
+    cluster_assignments
+  } else {
+    # this assumes that the columns are ordered with increasing number of
+    # clusters and that the first column is the ID column (with the ID column
+    # name provided by the user to the longitudinal_consensus_cluster function)
+    # as it is currently the case
+    cluster_assignments[, c(1, number_clusters)]
+  }
+}
