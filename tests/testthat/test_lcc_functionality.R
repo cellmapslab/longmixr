@@ -24,7 +24,7 @@ test_that("the base case works", {
 
 test_that("the output object has the correct format", {
   expect_length(clustering, 3)
-  expect_named(clustering, c("general_information", NA, NA))
+  expect_named(clustering, c("general_information", "cluster_2", "cluster_3"))
 })
 
 test_that("the general_information/consensus_matrices/call object has the correct format", {
@@ -67,4 +67,15 @@ test_that("the entries for every number of clusters have the correct format", {
   expect_vector(clustering[[2]][["found_flexmix_clusters"]], integer(), 3)
   expect_true(max(clustering[[2]][["found_flexmix_clusters"]]) <= 2)
   expect_true(max(clustering[[3]][["found_flexmix_clusters"]]) <= 3)
+})
+
+test_that("the cluster assignments can be retrievedby the getter", {
+  cluster_assignments <- get_clusters(clustering)
+  expect_s3_class(cluster_assignments, "data.frame")
+  expect_equal(dim(cluster_assignments), c(15, 3))
+  expect_equal(colnames(get_clusters(clustering, number_clusters = 3)),
+               c("patient_id", "assignment_num_clus_3"))
+  expect_error(get_clusters(data.frame(a = 1)))
+  expect_error(get_clusters(clustering, number_clusters = 1))
+  expect_error(get_clusters(clustering, number_clusters = 4))
 })
