@@ -5,21 +5,21 @@
 \title{Update connectivity matrix}
 \usage{
 connectivity_matrix(
-  clusterAssignments,
+  cluster_assignments,
   current_matrix,
   matrix_names,
-  sampleKey
+  sample_key
 )
 }
 \arguments{
-\item{clusterAssignments}{vector of cluster assignment for every subject}
+\item{cluster_assignments}{vector of cluster assignment for every subject}
 
 \item{current_matrix}{current connectivity matrix}
 
 \item{matrix_names}{vector of the names of the rows/columns of the
 connectivity matrix; usually the sorted unique names of the subjects}
 
-\item{sampleKey}{name of the subjects}
+\item{sample_key}{name of the subjects}
 }
 \value{
 updated connectivity matrix

@@ -10,7 +10,7 @@ extract_assignment(results, id_column)
 \item{results}{result list where the first entry is ignored and the other
 entries respond to the number of specified clusters (the kth entry means
 k specified clusters); every entry needs to contain the entry
-\code{consensusClass}. The cluster assignments need to have the subject
+\code{consensus_class}. The cluster assignments need to have the subject
 name as attribute}
 
 \item{id_column}{character vector of the ID column in the dataset}

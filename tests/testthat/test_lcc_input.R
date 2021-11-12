@@ -12,7 +12,7 @@ test_that("the data argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = as.matrix(test_data),
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list
   ),
@@ -24,7 +24,7 @@ test_that("the data argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data_2,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list
   ),
@@ -33,7 +33,7 @@ test_that("the data argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = c(test_data, test_data),
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list
   ),
@@ -44,7 +44,7 @@ test_that("the id_column argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "some_other_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list
   ),
@@ -53,7 +53,7 @@ test_that("the id_column argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = 3,
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list
   ),
@@ -62,65 +62,65 @@ test_that("the id_column argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = c("patient_id", "patient_id"),
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list
   ),
   regexp = "Assertion on 'id_column' failed")
 })
 
-test_that("the maxK argument is correct", {
+test_that("the max_k argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 1,
+    max_k = 1,
     reps = 3,
     model_list = model_list
   ),
-  regexp = "Assertion on 'maxK' failed")
+  regexp = "Assertion on 'max_k' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = -3,
+    max_k = -3,
     reps = 3,
     model_list = model_list
   ),
-  regexp = "Assertion on 'maxK' failed")
+  regexp = "Assertion on 'max_k' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2.5,
+    max_k = 2.5,
     reps = 3,
     model_list = model_list
   ),
-  regexp = "Assertion on 'maxK' failed")
+  regexp = "Assertion on 'max_k' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = "3",
+    max_k = "3",
     reps = 3,
     model_list = model_list
   ),
-  regexp = "Assertion on 'maxK' failed")
+  regexp = "Assertion on 'max_k' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = c(2, 3),
+    max_k = c(2, 3),
     reps = 3,
     model_list = model_list
   ),
-  regexp = "Assertion on 'maxK' failed")
+  regexp = "Assertion on 'max_k' failed")
 })
 
 test_that("the reps argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3.5,
     model_list = model_list
   ),
@@ -129,7 +129,7 @@ test_that("the reps argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 0,
     model_list = model_list
   ),
@@ -138,7 +138,7 @@ test_that("the reps argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = -1,
     model_list = model_list
   ),
@@ -147,7 +147,7 @@ test_that("the reps argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = "3",
     model_list = model_list
   ),
@@ -156,63 +156,63 @@ test_that("the reps argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = c(3, 4),
     model_list = model_list
   ),
   regexp = "Assertion on 'reps' failed")
 })
 
-test_that("the pItem argument is correct", {
+test_that("the p_item argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 1.1,
+    p_item = 1.1,
     model_list = model_list
   ),
-  regexp = "Assertion on 'pItem' failed")
+  regexp = "Assertion on 'p_item' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = "0.8",
+    p_item = "0.8",
     model_list = model_list
   ),
-  regexp = "Assertion on 'pItem' failed")
+  regexp = "Assertion on 'p_item' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = -0.1,
+    p_item = -0.1,
     model_list = model_list
   ),
-  regexp = "Assertion on 'pItem' failed")
+  regexp = "Assertion on 'p_item' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0,
+    p_item = 0,
     model_list = model_list
   ),
-  regexp = "Assertion on 'pItem' failed")
+  regexp = "Assertion on 'p_item' failed")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = c(0.5, 0.8),
+    p_item = c(0.5, 0.8),
     model_list = model_list
   ),
-  regexp = "Assertion on 'pItem' failed")
+  regexp = "Assertion on 'p_item' failed")
 })
 
 test_that("the model_list argument is correct", {
@@ -221,9 +221,9 @@ test_that("the model_list argument is correct", {
   expect_s3_class(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = flexmix::FLXMRmgcv(as.formula("var_1 ~ ."))
   ),
   "lcc")
@@ -231,9 +231,9 @@ test_that("the model_list argument is correct", {
   expect_s3_class(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")))
   ),
   "lcc")
@@ -242,9 +242,9 @@ test_that("the model_list argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = flexmix::FLXMCmvnorm(as.formula("var_1 ~ ."), diagonal = TRUE)
   )
   )
@@ -252,9 +252,9 @@ test_that("the model_list argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
                       flexmix::FLXMCmvnorm(as.formula("var_2 ~ ."), diagonal = TRUE))
   )
@@ -265,9 +265,9 @@ test_that("the flexmix_formula argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = model_list,
     flexmix_formula = "~s(visit, k = 4) | patient_id"
   ),
@@ -276,9 +276,9 @@ test_that("the flexmix_formula argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = model_list,
     flexmix_formula = c(as.formula("~s(visit, k = 4) | patient_id"),
                         as.formula("~s(visit, k = 4) | patient_id"))
@@ -290,9 +290,9 @@ test_that("the flexmix_formula argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
-    pItem = 0.8,
+    p_item = 0.8,
     model_list = model_list,
     flexmix_formula = as.formula("~s(studyday, k = 4) | patient_id")
   )
@@ -303,7 +303,7 @@ test_that("the title argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     title = 345
@@ -313,7 +313,7 @@ test_that("the title argument is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     title = c("title1", "title2")
@@ -321,34 +321,34 @@ test_that("the title argument is correct", {
   regexp = "Assertion on 'title' failed")
 })
 
-test_that("the argument finalLinkage is correct", {
+test_that("the argument final_linkage is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
-    finalLinkage = "superman"
+    final_linkage = "superman"
   ),
   regexp = "'arg' should be one of")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
-    finalLinkage = 3
+    final_linkage = 3
   ),
   regexp = "'arg' must be NULL or a character vector")
 
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
-    finalLinkage = c("single", "complete")
+    final_linkage = c("single", "complete")
   ),
   regexp = "'arg' must be of length 1")
 })
@@ -357,7 +357,7 @@ test_that("the argument seed is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     seed = 4.5
@@ -367,7 +367,7 @@ test_that("the argument seed is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     seed = -1
@@ -377,7 +377,7 @@ test_that("the argument seed is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     seed = "3"
@@ -387,7 +387,7 @@ test_that("the argument seed is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     seed = c(3, 4)
@@ -399,7 +399,7 @@ test_that("the argument verbose is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     verbose = "TRUE"
@@ -409,7 +409,7 @@ test_that("the argument verbose is correct", {
   expect_error(longitudinal_consensus_cluster(
     data = test_data,
     id_column = "patient_id",
-    maxK = 2,
+    max_k = 2,
     reps = 3,
     model_list = model_list,
     verbose = c(TRUE, FALSE)

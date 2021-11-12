@@ -2,10 +2,18 @@ Package: phenendo
 Title: Longitudinal consensus clustering with flexmix
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Jonas",
+    c(person(given = "Jonas",
            family = "Hagenberg",
            role = c("aut", "cre"),
-           email = "jonas_hagenberg@psych.mpg.de")
+           email = "jonas_hagenberg@psych.mpg.de"),
+     person(given = "Matt",
+            family = "Wilkerson",
+            role = c("aut", "cph")),
+     person(given = "Peter",
+            family = "Waltman",
+            role = c("aut", "cph")),
+     person(given = "Max Planck Institute of Psychiatry",
+            role = "cph"))
 Description: This packages adapts the consensus clustering approach from the package ConsensusClusteringPlus for longitudinal data. The longitudinal data is clustered with flexible mixture models from flexmix, while the consensus matrices are hierarchically clustered as in ConsensusClusterPlus.
 License: GPL (>= 2)
 Encoding: UTF-8
@@ -26,5 +34,8 @@ Imports:
     stats,
     utils
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr

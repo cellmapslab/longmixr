@@ -4,10 +4,10 @@
 \alias{CDF}
 \title{Plot the CDFs of consensus clustering}
 \usage{
-CDF(ml, breaks = 100)
+CDF(matrix_list, breaks = 100)
 }
 \arguments{
-\item{ml}{list of all consensus matrices}
+\item{matrix_list}{list of all consensus matrices}
 
 \item{breaks}{number of breaks}
 }
@@ -15,6 +15,6 @@ CDF(ml, breaks = 100)
 a CDF plot
 }
 \description{
-Internal function to plot the CDFs of the consensus solutions; taken
-from \code{ConsensusClusterPlus}.
+Internal function to plot the CDFs of the consensus solutions;
+adapted from \code{ConsensusClusterPlus}.
 }

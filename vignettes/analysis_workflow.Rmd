@@ -1,0 +1,374 @@
+---
+title: "Example clustering analysis"
+output: rmarkdown::html_vignette
+vignette: >
+%\VignetteIndexEntry{Example clustering analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  ---
+  
+  ```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+```{r setup}
+library(phenendo)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(FactoMineR)
+library(factoextra)
+library(lme4)
+```
+
+# Introduction
+This vignette gives an overview how to prepare the data for a clustering analysis
+with `longmixr`, do the clustering and analyse the results.
+
+# Consensus clustering
+add a short description of consensus clustering and link to resources
+
+# Data
+For the analysis, we use a simulated data set contained in `longmixr`.
+
+```{r}
+data("fake_questionnaire_data")
+str(fake_questionnaire_data)
+```
+
+The data set contains observations of 100 individuals at four different time
+points. The data was simulated in two groups which we try to recover in the
+analysis. For every individual, we have the information of
+
+- the age at the first time point
+- questionnaire A which contains five items (or in other words variables) with
+the categorical levels 1 - 5
+- questionnaire B which contains five items (or in other words variables) with
+the categorical levels 1 - 5
+- questionnaire C which contains three continuous variables
+- one additional continuous variable
+
+## Overview
+It is recommended to first get an overview about the data distribution:
+
+Age:
+```{r}
+fake_questionnaire_data %>% 
+  filter(visit == 1) %>% 
+  ggplot(aes(x = age_visit_1)) +
+  geom_histogram() +
+  theme_bw()
+```
+`single_continuous_variable`:
+```{r}
+fake_questionnaire_data %>% 
+  mutate(visit = as.factor(visit)) %>% 
+  ggplot(aes(x = visit, y = single_continuous_variable, fill = visit)) +
+  geom_boxplot() +
+  theme_bw()
+```
+Questionnaire A:
+```{r}
+fake_questionnaire_data %>% 
+  mutate(visit = as.factor(visit)) %>% 
+  select(visit, starts_with("questionnaire_A")) %>% 
+  pivot_longer(
+    cols = -visit,
+    names_to = "item",
+    values_to = "level"
+  ) %>% 
+  ggplot(aes(x = visit, fill = level)) +
+  geom_bar() +
+  theme_bw() +
+  facet_wrap(~item)
+```
+
+Questionnaire B:
+```{r}
+fake_questionnaire_data %>% 
+  mutate(visit = as.factor(visit)) %>% 
+  select(visit, starts_with("questionnaire_B")) %>% 
+  pivot_longer(
+    cols = -visit,
+    names_to = "item",
+    values_to = "level"
+  ) %>% 
+  ggplot(aes(x = visit, fill = level)) +
+  geom_bar() +
+  theme_bw() +
+  facet_wrap(~item)
+```
+
+Questionnaire C:
+```{r}
+fake_questionnaire_data %>% 
+  mutate(visit = as.factor(visit)) %>% 
+  select(visit, starts_with("questionnaire_C")) %>% 
+  pivot_longer(
+    cols = -visit,
+    names_to = "variable",
+    values_to = "value"
+  ) %>% 
+  ggplot(aes(x = visit, y = value, fill = visit)) +
+  geom_boxplot() +
+  theme_bw() +
+  facet_wrap(~variable)
+```
+
+# Dimension reduction
+Especially if you have a lot of variables, it can make sense to reduce the
+dimensionality for your analysis. For demonstration purposes, we apply a
+dimension reduction approach also to the example data. For this, we use the
+function `FAMD` from the package `FactoMineR`. It uses a similar approach as
+PCA for categorical data. For better interpretability, we apply the dimension
+reduction per questionnaire.
+
+```{r}
+quest_A_dim <- fake_questionnaire_data %>% 
+  select(starts_with("questionnaire_A")) %>% 
+  FAMD(ncp = 5, graph = FALSE)
+
+quest_B_dim <- fake_questionnaire_data %>% 
+  select(starts_with("questionnaire_B")) %>% 
+  FAMD(ncp = 5, graph = FALSE)
+
+quest_C_dim <- fake_questionnaire_data %>% 
+  select(starts_with("questionnaire_C")) %>% 
+  prcomp(scale = TRUE)
+```
+
+You can use the elbow plot method to visually determine the number of components
+to include into the analysis. The following function plots the variance
+explained by each component.
+
+```{r}
+fviz_screeplot(quest_A_dim, main = "Questionnaire A")
+```
+Only include the first three components as the rest don't explain too much
+variance.
+
+```{r}
+fviz_screeplot(quest_B_dim, main = "Questionnaire B")
+```
+From questionnaire B, we only include the first component.
+
+```{r}
+fviz_screeplot(quest_C_dim, main = "Questionnaire C")
+```
+From Questionnaire C, only include the first component.
+
+Generate one data.frame for further use with the values of every individual in
+the new dimension reduced space:
+
+```{r}
+quest_A_comp <- as.data.frame(quest_A_dim$ind$coord[, 1:3])
+colnames(quest_A_comp) <- paste0("quest_A_", 1:3)
+quest_B_comp <- as.data.frame(quest_B_dim$ind$coord[, 1])
+colnames(quest_B_comp) <- paste0("quest_B_", 1)
+quest_C_comp <- as.data.frame(quest_C_dim$x[, 1])
+colnames(quest_C_comp) <- paste0("quest_C_", 1)
+
+cluster_data <- bind_cols(
+  data.frame(
+    ID = fake_questionnaire_data$ID,
+    visit = fake_questionnaire_data$visit,
+    age = fake_questionnaire_data$age_visit_1
+  ),
+  quest_A_comp,
+  quest_B_comp,
+  quest_C_comp
+)
+```
+
+## Variable importance
+We can check which variables contribute the most to the components found in the
+dimension reduction step.
+
+Questionaire A:
+
+```{r}
+fviz_famd_var(quest_A_dim, repel = TRUE)
+fviz_contrib(quest_A_dim, "var", axes = 1)
+fviz_contrib(quest_A_dim, "var", axes = 2)
+fviz_contrib(quest_A_dim, "var", axes = 3)
+```
+
+Questionnaire B:
+
+```{r}
+fviz_famd_var(quest_B_dim, repel = TRUE)
+fviz_contrib(quest_B_dim, "var", axes = 1)
+```
+
+Questionnaire C:
+
+```{r}
+fviz_pca_var(quest_C_dim, repel = TRUE)
+fviz_contrib(quest_C_dim, "var", axes = 1)
+```
+
+
+# Effect of confounders
+There can be confounders that have a known effect on your outcome which you
+don't want to analyse. One solution is to first "regress them out" in a linear
+model and only work with the resulting residuals.
+
+One example of the age effect:
+
+```{r}
+ggplot(cluster_data, aes(x = age, y = quest_A_1)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ylab("Questionnaire A dimension 1") +
+  theme_bw()
+```
+
+As a simple approach we use linear mixed models to regress out the age effect:
+
+```{r}
+# helper function to regress out the effect
+generate_residuals <- function(x, age, ID) {
+  data <- data.frame(
+    x = x,
+    age = age,
+    ID = ID)
+  model <- lmer(x ~ age + (1 | ID), data = data)
+  resid <- residuals(model, type = "response")
+  names(resid) <- NULL
+  resid
+}
+
+cluster_data_resid <- cluster_data %>% 
+  # apply the function to all variables ending with a number
+  mutate(across(matches("[1-9]$"),
+                ~generate_residuals(x = .x, age = age, ID = ID),
+                .names = "{.col}_resid")) %>% 
+  select(ID, visit, ends_with("resid"), age)
+```
+
+After the regression, the linear effect of age is not contained anymore in the
+residuals.
+
+```{r}
+ggplot(cluster_data_resid, aes(x = age, y = quest_A_1_resid)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ylab("Residuals of questionnaire A dimension 1") +
+  theme_bw()
+```
+
+
+# Clustering
+First we need to set up the models that are estimated and used to assign each
+observation a cluster. For every variable, one model is estimated.
+
+First define the names of the variables. In our case, these are the components
+derived from the questionnaires and adjusted for the age effect:
+
+```{r}
+response_names <- c(paste0("quest_A_", 1:3, "_resid"),
+                    paste0("quest_B_", 1, "_resid"),
+                    paste0("quest_C_", 1, "_resid"))
+```
+
+Now, for every variable a `FLXMRmgcv` model is set up because this accommodates
+the longitudinal structure of our data. However, the `flexmix` framework is
+very flexible and the model can be changed to any other `FLXMR` model.
+
+```{r}
+list_models <- lapply(response_names, function(x) {
+  flexmix::FLXMRmgcv(as.formula(paste0(x, " ~ .")))
+})
+```
+
+The `~ .` part means that actual model (how the outcome is modeled from the
+independent variables) is not yet defined. This will be defined as an argument
+to the `longitudinal_consensus_cluster` function.
+
+We use the function with the following parameters:
+
+- `data = cluster_data_resid` the data as a `data.frame` .
+- `id_column = ID` defines which variable in the provided data is the ID column
+to correctly name the output.
+- `max_k = 3` the maximum number of clusters that is tried out; in this case
+solutions with 2 and 3 clusters will be tried out. You should set this
+argument as high as you expect that an optimal solution could be. Using a higher
+`max_k` increases the computational cost.
+- `reps = 5` the number how often the data is subsetted and the clustering is
+repeated. Here, we use a small number to keep the run time short for the example,
+in general the higher the number the more accurate the results.
+- `p_item = 0.8` the fraction of observations that is included in a subset
+- `model_list = list_models` the predefined `flexmix` models used for the
+clustering.
+- `flexmix_formula = as.formula("~s(visit, k = 4) | ID")` formula how the
+response should be modeled; here the outcome is modeled as a smooth function of
+the time while taking the repeated measurements of one subject into account.
+- `final_linkage = "ward.D2"` the linkage that is used for the final hierarchical
+clustering step on the consensus matrix.
+
+```{r}
+set.seed(2378)
+cluster_model <- longitudinal_consensus_cluster(data = cluster_data_resid,
+                                                id_column = "ID",
+                                                max_k = 3,
+                                                reps = 5,
+                                                p_item = 0.8,
+                                                model_list = list_models,
+                                                flexmix_formula = as.formula("~s(visit, k = 4) | ID"),
+                                                final_linkage = "ward.D2")
+```
+
+# Analyse the clustering
+## Determine the best clustering
+First, plot the analysis plots provided by `longmixr`. They are the same
+provided by the `ConsensusClusterPlus` package which is the basis for `longmixr`:
+
+```{r}
+plot(cluster_model)
+```
+
+Especially useful are the consensus matrix plots and the item-consensus plot.
+The consensus matrix plot shows for every pair of subjects/IDs how often they
+are clustered together in one cluster. Every row and every column represents
+one subject. A value of 1 (dark blue) means that these two subjects
+always cluster together, a value of 0 (white) means that these two subjects
+never cluster together.
+
+For an optimal solution, you want to see clearly separated clusters that are all
+dark blue. In this example, this is the case for a two cluster solution and less
+so for a three cluster solution.
+
+In the consensus CDF plot, the optimal cases shows a straight horizontal line
+with a sharp increase at 0 and 1. In the example, this is more fulfilled for
+the two cluster solution than the three cluster solution.
+
+The item-consensus plot shows every item (subject) on the x-axis. For every
+subject, the mean consensus value with all other subjects assigned to one
+cluster is calculated.
+
+In the item-consensus plot for two clusters, the mean item consensus for all
+subjects assigned to cluster 1 are only calculated for cluster 1, because no
+subject is assigned to cluster 2. Accordingly, the mean item consensus for all
+subjects assigned to cluster 2 are only calculated for cluster 2, because no
+subject is assigned to cluster 1.
+
+In the item-consensus plot for three clusters, some subjects are assigned to
+different clusters in different subsampling steps. Therefore, for these items
+the mean item-consensus is shown for cluster 2 and cluster 3. In general, for a
+given subject you want to have a high item-consensus for one cluster and low
+item-consensus for all other clusters.
+
+In the example, the item-consensus plots suggest a two cluster solution fits the
+data best.
+
+## Visualise the clusters
+First extract the cluster information (only for the two cluster solution) from
+the model:
+```{r}
+cluster_assignments <-
+  cluster_model$general_information$cluster_assignments[, c("ID", "assignment_num_clus_2")]
+```
+

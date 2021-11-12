@@ -4,10 +4,10 @@
 \alias{triangle}
 \title{Generate triangle matrix}
 \usage{
-triangle(m, mode = 1)
+triangle(input_matrix, mode = 1)
 }
 \arguments{
-\item{m}{matrix}
+\item{input_matrix}{matrix}
 
 \item{mode}{flag which matrix should be returned; can be \code{1, 2} or \code{3}}
 }
@@ -15,8 +15,9 @@ triangle(m, mode = 1)
 matrix; if \code{mode = 1} return the lower triangle as vector;
 if \code{mode = 2} return the transformed upper triangle (so that it is the lower one now)
 as a matrix with the rest of the entries as \code{NA}; if \code{mode = 3}
-return a matrix where the lower triangle is replaced by the upper triangle
+return a matrix where the lower left triangle is replaced by the upper right triangle
 }
 \description{
-Internal function to generate a triangle matrix; taken from \code{ConsensusClusterPlus}.
+Internal function to generate a triangle matrix;
+adapted from \code{ConsensusClusterPlus}.
 }
