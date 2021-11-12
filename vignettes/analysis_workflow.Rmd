@@ -183,6 +183,33 @@ cluster_data <- bind_cols(
 )
 ```
 
+## Variable importance
+We can check which variables contribute the most to the components found in the
+dimension reduction step.
+
+Questionaire A:
+
+```{r}
+fviz_famd_var(quest_A_dim, repel = TRUE)
+fviz_contrib(quest_A_dim, "var", axes = 1)
+fviz_contrib(quest_A_dim, "var", axes = 2)
+fviz_contrib(quest_A_dim, "var", axes = 3)
+```
+
+Questionnaire B:
+
+```{r}
+fviz_famd_var(quest_B_dim, repel = TRUE)
+fviz_contrib(quest_B_dim, "var", axes = 1)
+```
+
+Questionnaire C:
+
+```{r}
+fviz_pca_var(quest_C_dim, repel = TRUE)
+fviz_contrib(quest_C_dim, "var", axes = 1)
+```
+
 
 # Effect of confounders
 There can be confounders that have a known effect on your outcome which you
@@ -292,5 +319,56 @@ cluster_model <- longitudinal_consensus_cluster(data = cluster_data_resid,
                                                 model_list = list_models,
                                                 flexmix_formula = as.formula("~s(visit, k = 4) | ID"),
                                                 final_linkage = "ward.D2")
+```
+
+# Analyse the clustering
+## Determine the best clustering
+First, plot the analysis plots provided by `longmixr`. They are the same
+provided by the `ConsensusClusterPlus` package which is the basis for `longmixr`:
+
+```{r}
+plot(cluster_model)
+```
+
+Especially useful are the consensus matrix plots and the item-consensus plot.
+The consensus matrix plot shows for every pair of subjects/IDs how often they
+are clustered together in one cluster. Every row and every column represents
+one subject. A value of 1 (dark blue) means that these two subjects
+always cluster together, a value of 0 (white) means that these two subjects
+never cluster together.
+
+For an optimal solution, you want to see clearly separated clusters that are all
+dark blue. In this example, this is the case for a two cluster solution and less
+so for a three cluster solution.
+
+In the consensus CDF plot, the optimal cases shows a straight horizontal line
+with a sharp increase at 0 and 1. In the example, this is more fulfilled for
+the two cluster solution than the three cluster solution.
+
+The item-consensus plot shows every item (subject) on the x-axis. For every
+subject, the mean consensus value with all other subjects assigned to one
+cluster is calculated.
+
+In the item-consensus plot for two clusters, the mean item consensus for all
+subjects assigned to cluster 1 are only calculated for cluster 1, because no
+subject is assigned to cluster 2. Accordingly, the mean item consensus for all
+subjects assigned to cluster 2 are only calculated for cluster 2, because no
+subject is assigned to cluster 1.
+
+In the item-consensus plot for three clusters, some subjects are assigned to
+different clusters in different subsampling steps. Therefore, for these items
+the mean item-consensus is shown for cluster 2 and cluster 3. In general, for a
+given subject you want to have a high item-consensus for one cluster and low
+item-consensus for all other clusters.
+
+In the example, the item-consensus plots suggest a two cluster solution fits the
+data best.
+
+## Visualise the clusters
+First extract the cluster information (only for the two cluster solution) from
+the model:
+```{r}
+cluster_assignments <-
+  cluster_model$general_information$cluster_assignments[, c("ID", "assignment_num_clus_2")]
 ```
 
