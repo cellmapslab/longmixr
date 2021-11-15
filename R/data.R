@@ -13,11 +13,30 @@
 #'   \item{age_visit_1}{age of the patient at time point 1}
 #'   \item{single_continuous_variable}{a continuous variable}
 #'   \item{questionnaire_A_1}{the first item of questionnaire A with categories
-#'   1 to 5; the same for items 2-5}
+#'   1 to 5}
+#'   \item{questionnaire_A_2}{the second item of questionnaire A with categories
+#'   1 to 5}
+#'   \item{questionnaire_A_3}{the third item of questionnaire A with categories
+#'   1 to 5}
+#'   \item{questionnaire_A_4}{the fourth item of questionnaire A with categories
+#'   1 to 5}
+#'   \item{questionnaire_A_5}{the fifth item of questionnaire A with categories
+#'   1 to 5}
 #'   \item{questionnaire_B_1}{the first item of questionnaire B with categories
-#'   1 to 5; the same for items 2-5}
-#'   \item{questionnaire_C_1}{the first continuous variable of questionnaire C;
-#'   the same for variables 2-5}
+#'   1 to 5}
+#'   \item{questionnaire_B_2}{the second item of questionnaire B with categories
+#'   1 to 5}
+#'   \item{questionnaire_B_3}{the third item of questionnaire B with categories
+#'   1 to 5}
+#'   \item{questionnaire_B_4}{the fourth item of questionnaire B with categories
+#'   1 to 5}
+#'   \item{questionnaire_B_5}{the fifth item of questionnaire B with categories
+#'   1 to 5}
+#'   \item{questionnaire_C_1}{the first continuous variable of questionnaire C}
+#'   \item{questionnaire_C_2}{the second continuous variable of questionnaire C}
+#'   \item{questionnaire_C_3}{the third continuous variable of questionnaire C}
+#'   \item{questionnaire_C_4}{the fourth continuous variable of questionnaire C}
+#'   \item{questionnaire_C_5}{the fifth continuous variable of questionnaire C}
 #' }
 #' @source simulated data
 "fake_questionnaire_data"
