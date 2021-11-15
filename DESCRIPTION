@@ -36,6 +36,14 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    dplyr,
+    tidyr,
+    ggplot2,
+    ggalluvial,
+    FactoMineR,
+    factoextra,
+    lme4,
+    purrr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
