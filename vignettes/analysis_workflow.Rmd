@@ -49,7 +49,8 @@ In contrast to `ConsensusClusterPlus`, we use the package `flexmix`,
 clustering which allows us to model longitudinal data.
 
 # Data
-For the analysis, we use a simulated data set contained in `longmixr`.
+For the analysis, we use a simulated data set contained in `longmixr`. Please
+note that `longmixr` can only deal with complete data sets.
 
 ```{r}
 data("fake_questionnaire_data")
@@ -77,15 +78,6 @@ fake_questionnaire_data %>%
   filter(visit == 1) %>% 
   ggplot(aes(x = age_visit_1)) +
   geom_histogram() +
-  theme_bw()
-```
-
-`single_continuous_variable`:
-```{r}
-fake_questionnaire_data %>% 
-  mutate(visit = as.factor(visit)) %>% 
-  ggplot(aes(x = visit, y = single_continuous_variable, fill = visit)) +
-  geom_boxplot() +
   theme_bw()
 ```
 
@@ -137,6 +129,15 @@ fake_questionnaire_data %>%
   facet_wrap(~variable)
 ```
 
+`single_continuous_variable`:
+```{r}
+fake_questionnaire_data %>% 
+  mutate(visit = as.factor(visit)) %>% 
+  ggplot(aes(x = visit, y = single_continuous_variable, fill = visit)) +
+  geom_boxplot() +
+  theme_bw()
+```
+
 # Dimension reduction
 Especially if you have a lot of variables, it can make sense to reduce the
 dimensionality for your analysis. For demonstration purposes, we apply a
@@ -167,8 +168,8 @@ explained by each component.
 fviz_screeplot(quest_A_dim, main = "Questionnaire A")
 ```
 
-Only include the first three components as the rest don't explain too much
-variance.
+In this case, we would only select the first three components as the others
+explain only a small amount of variance.
 
 ```{r}
 fviz_screeplot(quest_B_dim, main = "Questionnaire B")
@@ -363,6 +364,13 @@ For an optimal solution, you want to see clearly separated clusters that are all
 dark blue. In this example, this is the case for a two cluster solution and less
 so for a three cluster solution.
 
+The consensus matrix plots also mention the "median flexmix clusters". This is
+because in some cases, the flexmix model does not find as many clusters as
+specified but less. To get a short overview about this, we include the median
+number of clusters. For a more detailed analysis, the information about the
+found number of clusters is contained in the return value for every cluster
+solution as `found_flexmix_clusters`.
+
 In the consensus CDF plot, the optimal cases shows a straight horizontal line
 with a sharp increase at 0 and 1. In the example, this is more fulfilled for
 the two cluster solution than the three cluster solution.
@@ -507,6 +515,7 @@ colnames(original_data)[grepl("^questionnaire_B", colnames(original_data))] %>%
 ```
 
 Questionnaire C:
+
 As questionnaire C contains continuous variables, use again a spaghetti plot:
 ```{r}
 # first define plot function similar to the first spaghetti plot function but
@@ -559,10 +568,10 @@ The comparison of the two clusters regarding the original variables show
 differences how some items of the categorical questionnaires and some variables
 of the continuous questionnaires differ between the two clusters.
 
-### Data not used in clustering
-As a final step, variables that were not used in the clustering can be compared
-across the found clusters. In this case, `single_continuous_variable` was left
-out from the clustering:
+### Cluster comparison
+As a final step, variables that were not used in the clustering, for example
+cross-sectional variables, can be compared across the found clusters. In this
+case, `single_continuous_variable` was left out from the clustering:
 
 ```{r, message = FALSE}
 plot_spaghetti_2(data = original_data, var_name = "single_continuous_variable")
