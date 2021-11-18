@@ -1,19 +1,19 @@
 
-# phenendo
+# longmixr
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/jhagenberg/phenendo/workflows/R-CMD-check/badge.svg)](https://github.com/jhagenberg/phenendo/actions)
+[![R-CMD-check](https://github.com/cellmapslab/longmixr/workflows/R-CMD-check/badge.svg)](https://github.com/cellmapslab/longmixr/actions)
 <!-- badges: end -->
 
-The goal of phenendo is to provide consensus clustering for longitudinal clustering
+The goal of longmixr is to provide consensus clustering for longitudinal clustering
 performed with [`flexmix`](https://cran.r-project.org/package=flexmix). It uses the approach from [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html) but
 replaces the clustering of the longitudinal data with a `flexmix` model.
 
 ## Installation
-You can install phenendo from [github](https://www.github.com) with:
+You can install longmixr from [github](https://www.github.com) with:
 
 ``` r
-remotes::install_github("jhagenberg/phenendo")
+remotes::install_github("cellmapslab/longmixr")
 ```
 
 ## Basic usage
