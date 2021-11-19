@@ -2,14 +2,14 @@
 % Please edit documentation in R/longitudinal_consensus_cluster.R
 \name{lcc_run}
 \alias{lcc_run}
-\title{Main function to run the longitudincal clustering}
+\title{Main function to run the longitudinal clustering}
 \usage{
 lcc_run(
   data,
   id_column,
-  maxK,
+  max_k,
   reps,
-  pItem,
+  p_item,
   model_list,
   flexmix_formula,
   verbose
@@ -25,11 +25,11 @@ are no restrictions on the column names, as the model is specified in
 \item{id_column}{name (character vector) of the ID column in \code{data} to
 identify all observations of one subject}
 
-\item{maxK}{maximum number of clusters, default is \code{3}}
+\item{max_k}{maximum number of clusters, default is \code{3}}
 
 \item{reps}{number of repetitions, default is \code{10}}
 
-\item{pItem}{fraction of samples contained in subsampled sample, default is
+\item{p_item}{fraction of samples contained in subsampled sample, default is
 \code{0.8}}
 
 \item{model_list}{either one \code{flexmix} driver or a list of \code{flexmix}

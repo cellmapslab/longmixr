@@ -1,18 +1,19 @@
 
-# phenendo
+# longmixr
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/cellmapslab/longmixr/workflows/R-CMD-check/badge.svg)](https://github.com/cellmapslab/longmixr/actions)
 <!-- badges: end -->
 
-The goal of phenendo is to provide consensus clustering for longitudinal clustering
+The goal of longmixr is to provide consensus clustering for longitudinal clustering
 performed with [`flexmix`](https://cran.r-project.org/package=flexmix). It uses the approach from [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html) but
 replaces the clustering of the longitudinal data with a `flexmix` model.
 
 ## Installation
-You can install phenendo from [github](https://www.github.com) with:
+You can install longmixr from [github](https://www.github.com) with:
 
 ``` r
-remotes::install_github("jhagenberg/phenendo")
+remotes::install_github("cellmapslab/longmixr")
 ```
 
 ## Basic usage
@@ -41,7 +42,7 @@ model_list <- list(flexmix::FLXMRmgcv(as.formula("var_1 ~ .")),
 clustering <- longitudinal_consensus_cluster(
   data = test_data,
   id_column = "patient_id",
-  maxK = 2,
+  max_k = 2,
   reps = 3,
   model_list = model_list,
   flexmix_formula = as.formula("~s(visit, k = 4) | patient_id"))
@@ -83,5 +84,8 @@ cc <- crosssectional_consensus_cluster(
 )
 ```
 
-## Attribution
-The package is based on the code of [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html).
+## Copyright
+The package is based on the code of [`ConsensusClusterPlus`](https://bioconductor.org/packages/release/bioc/html/ConsensusClusterPlus.html)
+(version 1.52.0). For this code the copyright holders are Matt Wilkerson and
+Peter Waltman. For all subsequent changes the copyright holder is the Max Planck
+Institute of Psychiatry. The code is licensed under GPL v2.
