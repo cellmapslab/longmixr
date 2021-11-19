@@ -1,4 +1,4 @@
 library(testthat)
-library(phenendo)
+library(longmixr)
 
-test_check("phenendo")
+test_check("longmixr")

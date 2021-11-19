@@ -16,7 +16,7 @@ fig.width = 6
 ```
 
 ```{r setup, message = FALSE}
-library(phenendo)
+library(longmixr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
