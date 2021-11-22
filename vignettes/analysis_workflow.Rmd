@@ -41,9 +41,9 @@ obtained by a hierarchical clustering step using the consensus matrix as its
 distance matrix.
 
 For an overview about the used consensus clustering methodology, see
-[Monti, Stefano, et al. "Consensus clustering: a resampling-based method for class discovery and visualization of gene expression microarray data." Machine learning 52.1 (2003): 91-118.](https://link.springer.com/content/pdf/10.1023/A:1023949509487.pdf).
+[Monti, Stefano, et al. "Consensus clustering: a resampling-based method for class discovery and visualization of gene expression microarray data." Machine learning 52.1 (2003): 91-118.](https://link.springer.com/content/pdf/10.1023/A:1023949509487.pdf)
 The code and provided visualisations of `longmixr` is based on the
-`ConsensusClusterPlus` package, [Wilkerson, Matthew D., and D. Neil Hayes. "ConsensusClusterPlus: a class discovery tool with confidence assessments and item tracking." Bioinformatics 26.12 (2010): 1572-1573.](https://doi.org/10.1093/bioinformatics/btq170).
+`ConsensusClusterPlus` package, [Wilkerson, Matthew D., and D. Neil Hayes. "ConsensusClusterPlus: a class discovery tool with confidence assessments and item tracking." Bioinformatics 26.12 (2010): 1572-1573.](https://doi.org/10.1093/bioinformatics/btq170)
 In contrast to `ConsensusClusterPlus`, we use the package `flexmix`,
 [Grun, Bettina, and Friedrich Leisch. "FlexMix version 2: finite mixtures with concomitant variables and varying and constant parameters." (2008): 1.](https://doi.org/10.18637/jss.v028.i04), instead of hierarchical
 clustering which allows us to model longitudinal data.
@@ -57,7 +57,7 @@ data("fake_questionnaire_data")
 str(fake_questionnaire_data)
 ```
 
-The data set contains observations of 100 individuals at four different time
+The data set contains observations of 100 subjects at four different time
 points. The data was simulated in two groups which we try to recover in the
 analysis. For every individual, we have the information of
 
@@ -67,7 +67,7 @@ the categorical levels 1 - 5
 - questionnaire B which contains five items (or in other words variables) with
 the categorical levels 1 - 5
 - questionnaire C which contains five continuous variables
-- one additional continuous variable
+- one additional cross-sectional continuous variable
 
 ## Overview
 It is recommended to first get an overview about the data distribution:
@@ -80,6 +80,8 @@ fake_questionnaire_data %>%
   geom_histogram() +
   theme_bw()
 ```
+
+The histogram shows no clear pattern in the age distribution.
 
 Questionnaire A:
 ```{r}
@@ -97,6 +99,10 @@ fake_questionnaire_data %>%
   facet_wrap(~item)
 ```
 
+For each of the five items of the questionnaire, the distribution of the
+different levels (as counts) is shown for the four time points. The
+distribution of the levels seems to change across the time points for all items.
+
 Questionnaire B:
 ```{r}
 fake_questionnaire_data %>% 
@@ -112,6 +118,10 @@ fake_questionnaire_data %>%
   theme_bw() +
   facet_wrap(~item)
 ```
+
+For each of the five items of the questionnaire, the distribution of the
+different levels (as counts) is shown for the four time points. The
+distribution of the levels seems to change across the time points for some items.
 
 Questionnaire C:
 ```{r}
@@ -129,14 +139,24 @@ fake_questionnaire_data %>%
   facet_wrap(~variable)
 ```
 
+For each of the five variables of the questionnaire, the distribution is
+shown for the four time points as boxplots. The distribution changes for some
+variables across the time points.
+
 `single_continuous_variable`:
 ```{r}
-fake_questionnaire_data %>% 
-  mutate(visit = as.factor(visit)) %>% 
-  ggplot(aes(x = visit, y = single_continuous_variable, fill = visit)) +
+fake_questionnaire_data %>%
+  # only use the values from the first visit as there is only one unique value
+  # per subject
+  filter(visit == 1) %>% 
+  ggplot(aes(y = single_continuous_variable)) +
   geom_boxplot() +
-  theme_bw()
+  theme_bw() +
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
 ```
+
+The distribution of this variable is shown as a boxplot.
 
 # Dimension reduction
 Especially if you have a lot of variables, it can make sense to reduce the
@@ -207,10 +227,11 @@ cluster_data <- bind_cols(
 ```
 
 ## Variable importance
-We can check which variables contribute the most to the components found in the
-dimension reduction step.
+We can check how well the variables are correlated with the components and which
+variables contribute the most to the components found in the dimension reduction
+step. For the visualisation, we use functions from the `factoextra` package.
 
-Questionaire A:
+Questionnaire A:
 
 ```{r}
 fviz_famd_var(quest_A_dim, repel = TRUE)
@@ -237,9 +258,10 @@ fviz_contrib(quest_C_dim, "var", axes = 1)
 # Effect of confounders
 There can be confounders that have a known effect on your outcome which you
 don't want to analyse. One solution is to first "regress them out" in a linear
-model and only work with the resulting residuals.
+model and only work with the resulting residuals. The following steps are done
+with the components from the dimension reduction.
 
-One example of the age effect:
+One example of the age effect in questionnaire A:
 
 ```{r}
 ggplot(cluster_data, aes(x = age, y = quest_A_1)) +
@@ -249,7 +271,8 @@ ggplot(cluster_data, aes(x = age, y = quest_A_1)) +
   theme_bw()
 ```
 
-As a simple approach we use linear mixed models to regress out the age effect:
+As a simple approach we use linear mixed models to regress out the age effect in
+all components used for the clustering:
 
 ```{r}
 # helper function to regress out the effect
@@ -313,7 +336,8 @@ to the `longitudinal_consensus_cluster` function.
 
 We use the function with the following parameters:
 
-- `data = cluster_data_resid` the data as a `data.frame` .
+- `data = cluster_data_resid` the data as a `data.frame` with observations in
+the rows and the variables in the columns.
 - `id_column = ID` defines which variable in the provided data is the ID column
 to correctly name the output.
 - `max_k = 3` the maximum number of clusters that is tried out; in this case
@@ -321,9 +345,11 @@ solutions with 2 and 3 clusters will be tried out. You should set this
 argument as high as you expect that an optimal solution could be. Using a higher
 `max_k` increases the computational cost.
 - `reps = 5` the number how often the data is subsetted and the clustering is
-repeated. Here, we use a small number to keep the run time short for the example,
-in general the higher the number the more accurate the results.
-- `p_item = 0.8` the fraction of observations that is included in a subset
+repeated (in other words: the number of subsets). Here, we use a small number to
+keep the run time short for the example, in general the higher the number the
+more accurate the results.
+- `p_item = 0.8` the fraction of observations that is included in a subset (for
+a definition of subset see the above `reps` description).
 - `model_list = list_models` the predefined `flexmix` models used for the
 clustering.
 - `flexmix_formula = as.formula("~s(visit, k = 4) | ID")` formula how the
@@ -358,7 +384,8 @@ The consensus matrix plot shows for every pair of subjects/IDs how often they
 are clustered together in one cluster. Every row and every column represents
 one subject. A value of 1 (dark blue) means that these two subjects
 always cluster together, a value of 0 (white) means that these two subjects
-never cluster together.
+never cluster together. The first plot shows only the legend for the consensus
+matrix plots without any other information.
 
 For an optimal solution, you want to see clearly separated clusters that are all
 dark blue. In this example, this is the case for a two cluster solution and less
@@ -371,9 +398,18 @@ number of clusters. For a more detailed analysis, the information about the
 found number of clusters is contained in the return value for every cluster
 solution as `found_flexmix_clusters`.
 
-In the consensus CDF plot, the optimal cases shows a straight horizontal line
-with a sharp increase at 0 and 1. In the example, this is more fulfilled for
-the two cluster solution than the three cluster solution.
+In the consensus cumulative distribution function (CDF) plot, the optimal cases
+shows a straight horizontal line with a sharp increase at 0 and 1. In the
+example, this is more fulfilled for the two cluster solution than the three
+cluster solution. However, the sharp increase at 0 is not visible in our
+example.
+
+The Delta area plot is generated to be consistent with `ConsensusClusterPlus`,
+but we don't recommend to use it.
+
+The tracking plot shows for every subject to which cluster it was assigned to
+across the different possible cluster solutions with different numbers of
+clusters.
 
 The item-consensus plot shows every item (subject) on the x-axis. For every
 subject, the mean consensus value with all other subjects assigned to one
@@ -479,8 +515,8 @@ item (variable) separately.
 Define the plotting function for alluvial plots:
 ```{r}
 plot_alluvial <- function(data = original_data,
-                               num_clus = 2,
-                               var_name) {
+                          num_clus = 2,
+                          var_name) {
   clus_assign <- paste0("assignment_num_clus_", num_clus)
   
   p <- data %>% 
@@ -571,10 +607,17 @@ of the continuous questionnaires differ between the two clusters.
 ### Cluster comparison
 As a final step, variables that were not used in the clustering, for example
 cross-sectional variables, can be compared across the found clusters. In this
-case, `single_continuous_variable` was left out from the clustering:
+case, `single_continuous_variable` only has one value per subject and was left
+out from the clustering:
 
 ```{r, message = FALSE}
-plot_spaghetti_2(data = original_data, var_name = "single_continuous_variable")
+original_data %>% 
+  filter(visit == 1) %>% 
+  mutate(cluster = as.factor(assignment_num_clus_2)) %>% 
+  ggplot(aes(x = cluster, y = single_continuous_variable,
+             fill = cluster)) +
+  geom_boxplot() +
+  theme_bw()
 ```
 
-Also this variable shows a quite different behaviour between the two clusters.
+Also the left-out variable shows a different behaviour between the two clusters.
