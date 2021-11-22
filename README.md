@@ -16,6 +16,12 @@ You can install longmixr from [github](https://www.github.com) with:
 remotes::install_github("cellmapslab/longmixr")
 ```
 
+If you want to render the vignette, use:
+
+``` r
+remotes::install_github("cellmapslab/longmixr", build_vignettes = TRUE)
+```
+
 ## Basic usage
 You need a dataset with a column that identifies the subject, a column that
 denotes the time point of the measurement and variables that you want to model.
