@@ -68,6 +68,11 @@ between all members of each cluster.
 plot(clustering)
 ```
 
+### Detailed explanation
+For a detailed explanation how you can use `longmixr` to analyse your
+longitudinal data, check out the
+[Example clustering analysis vignette](vignettes/analysis_workflow.Rmd).
+
 ## Cross-sectional clustering
 Additionally, this package provides a wrapper function around the
 `ConsensusClusterPlus` function to work with mixed continuous and categorical
