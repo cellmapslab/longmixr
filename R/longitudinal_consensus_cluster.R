@@ -177,6 +177,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
 #'    \tab \cr
 #'    \code{found_number_clusters} \tab a list of vectors with the actual number of clusters found by \code{flexmix} where the kth entry is for k specified numbers of clusters. The first entry is \code{NULL}
 #' }
+#' @noRd
 lcc_run <- function(data,
                     id_column,
                     max_k,
