@@ -85,6 +85,18 @@ subsample. The results are combined in a consensus matrix and a final
 hierarchical clustering step performed on this matrix. In this, it follows
 the approach from the \code{ConsensusClusterPlus} package.
 }
+\details{
+The data types \code{longitudinal_consensus_cluster} can handle depends on
+how the \code{flexmix} models are set up, in principle all data types are
+supported for which there is a \code{flexmix} driver with the desired
+outcome variable.
+
+If you follow the dimension reduction approach outlined in
+\code{vignette("Example clustering analysis", package = "longmixr")}, the
+input data types depend on what \code{FAMD} from the \code{FactoMineR}
+package can handle. \code{FAMD} accepts \code{numeric} variables and treats
+all other variables as \code{factor} variables which it can handle as well.
+}
 \examples{
 set.seed(5)
 test_data <- data.frame(patient_id = rep(1:10, each = 4),

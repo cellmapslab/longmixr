@@ -15,6 +15,11 @@
 #' the \code{d} argument can \bold{not} be set as it is directly computed by
 #' \code{crosssectional_consensus_cluster}
 #'
+#' @details
+#' \code{data} can take all input data types that \code{\link[StatMatch]{gower.dist}}
+#' can handle, i.e. \code{numeric}, \code{character}/\code{factor}, \code{ordered}
+#' and \code{logical}.
+#'
 #' @return The output is produced by \code{ConsensusClusterPlus}
 #'
 #' @importFrom stats as.dist
