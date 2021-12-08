@@ -36,6 +36,11 @@ This function uses the \code{ConsensusClusterPlus} function from the package
 with the same name with defaults for clustering data with categorical
 variables. As the distance function, the Gower distance is used.
 }
+\details{
+\code{data} can take all input data types that \code{\link[StatMatch]{gower.dist}}
+can handle, i.e. \code{numeric}, \code{character}/\code{factor}, \code{ordered}
+and \code{logical}.
+}
 \examples{
 dc <- mtcars
 # scale continuous variables

@@ -69,6 +69,11 @@ the categorical levels 1 - 5
 - questionnaire C which contains five continuous variables
 - one additional cross-sectional continuous variable
 
+Because the data set was simulated, it also contains the group variable from the
+simulation. In your data set you typically don't have such a variable because
+you don't know the groups. For the following analysis, the group variable is not
+required.
+
 ## Overview
 It is recommended to first get an overview about the data distribution:
 

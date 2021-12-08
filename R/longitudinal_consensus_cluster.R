@@ -32,6 +32,18 @@
 #' @param verbose \code{boolean} if status messages should be displayed.
 #' Default is \code{FALSE}
 #'
+#' @details
+#' The data types \code{longitudinal_consensus_cluster} can handle depends on
+#' how the \code{flexmix} models are set up, in principle all data types are
+#' supported for which there is a \code{flexmix} driver with the desired
+#' outcome variable.
+#'
+#' If you follow the dimension reduction approach outlined in
+#' \code{vignette("Example clustering analysis", package = "longmixr")}, the
+#' input data types depend on what \code{FAMD} from the \code{FactoMineR}
+#' package can handle. \code{FAMD} accepts \code{numeric} variables and treats
+#' all other variables as \code{factor} variables which it can handle as well.
+#'
 #' @return An object (list) of class \code{lcc} with length \code{maxk}.
 #' The first entry \code{general_information} contains the entries:\tabular{ll}{
 #'    \code{consensus_matrices} \tab a list of all consensus matrices (for all specified clusters) \cr
@@ -177,6 +189,7 @@ longitudinal_consensus_cluster <- function(data = NULL,
 #'    \tab \cr
 #'    \code{found_number_clusters} \tab a list of vectors with the actual number of clusters found by \code{flexmix} where the kth entry is for k specified numbers of clusters. The first entry is \code{NULL}
 #' }
+#' @noRd
 lcc_run <- function(data,
                     id_column,
                     max_k,

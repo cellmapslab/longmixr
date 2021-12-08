@@ -4,7 +4,8 @@
 #' points. The data was simulated in two groups (50 individuals each) and
 #' contains two questionnaires with five items each, one questionnaire with
 #' five continuous variables and one additional cross-sectional continuous
-#' variable.
+#' variable. In this data set the group variable from the simulation is
+#' included. You typically don't have this group variable in your data.
 #'
 #' @format A data frame with 400 rows and 20 variables:
 #' \describe{

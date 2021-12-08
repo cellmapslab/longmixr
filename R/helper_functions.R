@@ -12,6 +12,7 @@
 #'    \tab \cr
 #'    \code{sample_patients} \tab names from the \code{id_column} of the subsampled subjects
 #' }
+#' @noRd
 sample_patients <- function(data,
                             p_samp,
                             id_column) {
@@ -40,6 +41,7 @@ sample_patients <- function(data,
 #' @param sample_key name of the subjects
 #'
 #' @return updated connectivity matrix
+#' @noRd
 connectivity_matrix <- function(cluster_assignments,
                                 current_matrix,
                                 matrix_names,
@@ -75,6 +77,7 @@ connectivity_matrix <- function(cluster_assignments,
 #' if \code{mode = 2} return the transformed upper triangle (so that it is the lower one now)
 #' as a matrix with the rest of the entries as \code{NA}; if \code{mode = 3}
 #' return a matrix where the lower left triangle is replaced by the upper right triangle
+#' @noRd
 triangle <- function(input_matrix,
                      mode = 1) {
   n <- dim(input_matrix)[1]
@@ -122,6 +125,7 @@ triangle <- function(input_matrix,
 #' @importFrom grDevices rainbow
 #'
 #' @return a CDF plot
+#' @noRd
 CDF <- function(matrix_list,
                 breaks = 100) {
   # set up the plot
@@ -181,6 +185,7 @@ CDF <- function(matrix_list,
 #'    \tab \cr
 #'    \code{3.} \tab vector of unique colours in the first list entry
 #' }
+#' @noRd
 set_cluster_colors <- function(past_ct,
                                ct,
                                color_names,
@@ -231,6 +236,7 @@ set_cluster_colors <- function(past_ct,
 #' @importFrom graphics rect segments text
 #'
 #' @return tracking plot
+#' @noRd
 cluster_tracking_plot <- function(assignment_matrix) {
   # set up the plot
   plot(NULL, xlim = c(-0.1, 1), ylim = c(0, 1), axes = FALSE,
@@ -267,6 +273,7 @@ cluster_tracking_plot <- function(assignment_matrix) {
 #'
 #' @return vector of colour hex values where the first is red and the rest different
 #' blue colours
+#' @noRd
 my_pal <- function(n = 10) {
   seq <- rev(seq(0, 255, by = 255 / (n)))
   pal_RGB <- cbind(seq, seq, 255)
@@ -288,6 +295,7 @@ my_pal <- function(n = 10) {
 #' @return \code{data.frame} with a column named after the \code{id_column}
 #' containing the subject name and one column with the cluster assignments for
 #' every specified number of clusters, e.g. \code{assignment_num_clus_2}
+#' @noRd
 extract_assignment <- function(results,
                                id_column) {
   # extract the assignment for every specified number of clusters
@@ -321,6 +329,7 @@ extract_assignment <- function(results,
 #' @param title title of the plot
 #'
 #' @return item/subject consensus plot
+#' @noRd
 ranked_bar_plot <- function(item_consensus_matrix,
                             cluster_colors,
                             item_order,

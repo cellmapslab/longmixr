@@ -19,8 +19,10 @@ remotes::install_github("cellmapslab/longmixr")
 If you want to render the vignette, use:
 
 ``` r
-remotes::install_github("cellmapslab/longmixr", build_vignettes = TRUE)
+remotes::install_github("cellmapslab/longmixr", build_vignettes = TRUE, dependencies = TRUE)
 ```
+
+Please note that for the vignette a lot more dependencies are installed.
 
 ## Basic usage
 You need a dataset with a column that identifies the subject, a column that
