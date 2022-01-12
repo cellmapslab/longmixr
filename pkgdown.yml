@@ -3,7 +3,7 @@ pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
   analysis_workflow: analysis_workflow.html
-last_built: 2022-01-11T21:13Z
+last_built: 2022-01-12T14:28Z
 urls:
   reference: https://cellmapslab.github.io/longmixr/reference
   article: https://cellmapslab.github.io/longmixr/articles
