@@ -75,7 +75,7 @@ plot(clustering)
 ### Detailed explanation
 For a detailed explanation how you can use `longmixr` to analyse your
 longitudinal data, check out the
-[Example clustering analysis vignette](vignettes/analysis_workflow.Rmd).
+[Example clustering analysis vignette](https://cellmapslab.github.io/longmixr/articles/analysis_workflow.html).
 
 ## Cross-sectional clustering
 Additionally, this package provides a wrapper function around the

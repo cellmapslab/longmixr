@@ -1,28 +1,35 @@
 Package: longmixr
-Title: Longitudinal consensus clustering with flexmix
-Version: 0.0.0.9000
+Title: Longitudinal Consensus Clustering with 'flexmix'
+Version: 1.0.0
 Authors@R: 
     c(person(given = "Jonas",
-           family = "Hagenberg",
-           role = c("aut", "cre"),
-           email = "jonas_hagenberg@psych.mpg.de"),
-     person(given = "Matt",
-            family = "Wilkerson",
-            role = c("aut", "cph")),
-     person(given = "Peter",
-            family = "Waltman",
-            role = c("aut", "cph")),
-     person(given = "Max Planck Institute of Psychiatry",
-            role = "cph"))
-Description: This packages adapts the consensus clustering approach from the package ConsensusClusteringPlus for longitudinal data. The longitudinal data is clustered with flexible mixture models from flexmix, while the consensus matrices are hierarchically clustered as in ConsensusClusterPlus.
+             family = "Hagenberg",
+             role = c("aut", "cre"),
+             email = "jonas_hagenberg@psych.mpg.de",
+             comment = c(ORCID = "0000-0002-1849-1106")),
+      person(given = "Matt",
+             family = "Wilkerson",
+             role = c("aut", "cph")),
+      person(given = "Peter",
+             family = "Waltman",
+             role = c("aut", "cph")),
+      person(given = "Max Planck Institute of Psychiatry",
+             role = "cph"))
+Description: An adaption of the consensus clustering approach from
+    'ConsensusClusteringPlus' for longitudinal data. The longitudinal data is
+    clustered with flexible mixture models from 'flexmix', while the consensus
+    matrices are hierarchically clustered as in 'ConsensusClusterPlus'. By using
+    the flexibility from 'flexmix' and 'FactoMineR', one can use mixed data
+    types for the clustering.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-URL: https://github.com/cellmapslab/longmixr,
-    https://cellmapslab.github.io/longmixr/
+URL: https://cellmapslab.github.io/longmixr/
 BugReports: https://github.com/cellmapslab/longmixr/issues
+Depends:
+    R (>= 3.5.0)
 biocViews:
 Imports: 
     checkmate,
@@ -30,7 +37,6 @@ Imports:
     graphics,
     grDevices,
     flexmix,
-    mgcv,
     StatMatch,
     stats,
     utils
