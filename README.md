@@ -66,6 +66,8 @@ plot shows the average consensus of each subject with all other subjects that
 belong to one cluster. The cluster consensus plot depicts the average consensus
 between all members of each cluster.
 
+The above mentioned plots are generated when calling the `plot` function:
+
 ``` r
 plot(clustering)
 ```
