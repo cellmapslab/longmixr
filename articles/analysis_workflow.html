@@ -89,13 +89,13 @@
 <div class="section level1">
 <h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h1>
-<p>This vignette gives an overview how to inspect and prepare the data for a clustering analysis with <code>longmixr</code>, do the clustering and analyse the results.</p>
+<p>This vignette gives an overview how to inspect and prepare the data for a clustering analysis with <code>longmixr</code>, do the clustering and analyze the results.</p>
 </div>
 <div class="section level1">
 <h1 id="consensus-clustering">Consensus clustering<a class="anchor" aria-label="anchor" href="#consensus-clustering"></a>
 </h1>
 <p>Consensus clustering tries to generate more robust clustering results. Instead of doing the clustering once, the clustering is performed several times on different subsets of the data. In every subset, for all pairs of subjects it is recorded if they cluster together in the same cluster. The average of this information is called the consensus matrix. The final clustering solution is obtained by a hierarchical clustering step using the consensus matrix as its distance matrix.</p>
-<p>For an overview about the used consensus clustering methodology, see <a href="https://link.springer.com/content/pdf/10.1023/A:1023949509487.pdf" class="external-link">Monti, Stefano, et al. “Consensus clustering: a resampling-based method for class discovery and visualization of gene expression microarray data.” Machine learning 52.1 (2003): 91-118.</a> The code and provided visualisations of <code>longmixr</code> is based on the <code>ConsensusClusterPlus</code> package, <a href="https://doi.org/10.1093/bioinformatics/btq170" class="external-link">Wilkerson, Matthew D., and D. Neil Hayes. “ConsensusClusterPlus: a class discovery tool with confidence assessments and item tracking.” Bioinformatics 26.12 (2010): 1572-1573.</a> In contrast to <code>ConsensusClusterPlus</code>, we use the package <code>flexmix</code>, <a href="https://doi.org/10.18637/jss.v028.i04" class="external-link">Grun, Bettina, and Friedrich Leisch. “FlexMix version 2: finite mixtures with concomitant variables and varying and constant parameters.” (2008): 1.</a>, instead of hierarchical clustering which allows us to model longitudinal data.</p>
+<p>For an overview about the used consensus clustering methodology, see <a href="https://link.springer.com/content/pdf/10.1023/A:1023949509487.pdf" class="external-link">Monti, Stefano, et al. “Consensus clustering: a resampling-based method for class discovery and visualization of gene expression microarray data.” Machine learning 52.1 (2003): 91-118.</a> The code and provided visualizations of <code>longmixr</code> is based on the <code>ConsensusClusterPlus</code> package, <a href="https://doi.org/10.1093/bioinformatics/btq170" class="external-link">Wilkerson, Matthew D., and D. Neil Hayes. “ConsensusClusterPlus: a class discovery tool with confidence assessments and item tracking.” Bioinformatics 26.12 (2010): 1572-1573.</a> In contrast to <code>ConsensusClusterPlus</code>, we use the package <code>flexmix</code>, <a href="https://doi.org/10.18637/jss.v028.i04" class="external-link">Grün, Bettina, and Friedrich Leisch. “FlexMix version 2: finite mixtures with concomitant variables and varying and constant parameters.” (2008): 1.</a>, instead of hierarchical clustering which allows us to model longitudinal data.</p>
 </div>
 <div class="section level1">
 <h1 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
@@ -262,7 +262,7 @@
 <div class="section level2">
 <h2 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h2>
-<p>We can check how well the variables are correlated with the components and which variables contribute the most to the components found in the dimension reduction step. For the visualisation, we use functions from the <code>factoextra</code> package.</p>
+<p>We can check how well the variables are correlated with the components and which variables contribute the most to the components found in the dimension reduction step. For the visualization, we use functions from the <code>factoextra</code> package.</p>
 <p>Questionnaire A:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/factoextra/man/fviz_famd.html" class="external-link">fviz_famd_var</a></span><span class="op">(</span><span class="va">quest_A_dim</span>, repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
@@ -295,7 +295,7 @@
 <div class="section level1">
 <h1 id="effect-of-confounders">Effect of confounders<a class="anchor" aria-label="anchor" href="#effect-of-confounders"></a>
 </h1>
-<p>There can be confounders that have a known effect on your outcome which you don’t want to analyse. One solution is to first “regress them out” in a linear model and only work with the resulting residuals. The following steps are done with the components from the dimension reduction.</p>
+<p>There can be confounders that have a known effect on your outcome which you don’t want to analyze. One solution is to first “regress them out” in a linear model and only work with the resulting residuals. The following steps are done with the components from the dimension reduction.</p>
 <p>One example of the age effect in questionnaire A:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">cluster_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">quest_A_1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
@@ -394,7 +394,7 @@
 <span class="co">#&gt; 3 : *</span></code></pre></div>
 </div>
 <div class="section level1">
-<h1 id="analyse-the-clustering">Analyse the clustering<a class="anchor" aria-label="anchor" href="#analyse-the-clustering"></a>
+<h1 id="analyze-the-clustering">Analyze the clustering<a class="anchor" aria-label="anchor" href="#analyze-the-clustering"></a>
 </h1>
 <div class="section level2">
 <h2 id="determine-the-best-clustering">Determine the best clustering<a class="anchor" aria-label="anchor" href="#determine-the-best-clustering"></a>
@@ -415,7 +415,7 @@
 <p>In the example, the item-consensus plots suggest a two cluster solution fits the data best.</p>
 </div>
 <div class="section level2">
-<h2 id="visualise-the-clusters">Visualise the clusters<a class="anchor" aria-label="anchor" href="#visualise-the-clusters"></a>
+<h2 id="visualize-the-clusters">Visualize the clusters<a class="anchor" aria-label="anchor" href="#visualize-the-clusters"></a>
 </h2>
 <p>First extract the cluster information (only for the two cluster solution) from the model:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
@@ -429,7 +429,7 @@
 <div class="section level3">
 <h3 id="components-used-in-clustering">Components used in clustering<a class="anchor" aria-label="anchor" href="#components-used-in-clustering"></a>
 </h3>
-<p>Now the components used for the clustering can be visualised as spaghetti plots. First, define the plotting function:</p>
+<p>Now the components used for the clustering can be visualized as spaghetti plots. First, define the plotting function:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plot_spaghetti</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span> <span class="op">=</span> <span class="va">cluster_data_resid</span>,
                            <span class="va">num_clus</span> <span class="op">=</span> <span class="fl">2</span>,
@@ -484,7 +484,7 @@
 <div class="section level3">
 <h3 id="original-data">Original data<a class="anchor" aria-label="anchor" href="#original-data"></a>
 </h3>
-<p>Most of the original variables are categorical variables. For a better visualisation of the change over time, we use alluvial plots and plot every item (variable) separately.</p>
+<p>Most of the original variables are categorical variables. For a better visualization of the change over time, we use alluvial plots and plot every item (variable) separately.</p>
 <p>Define the plotting function for alluvial plots:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plot_alluvial</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span> <span class="op">=</span> <span class="va">original_data</span>,
@@ -580,7 +580,7 @@
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="analysis_workflow_files/figure-html/unnamed-chunk-34-1.png" width="576"></p>
-<p>Also the left-out variable shows a different behaviour between the two clusters.</p>
+<p>Also the left-out variable shows a different behavior between the two clusters.</p>
 </div>
 </div>
 </div>
