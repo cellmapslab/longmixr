@@ -16,7 +16,7 @@ Authors@R:
       person(given = "Max Planck Institute of Psychiatry",
              role = "cph"))
 Description: An adaption of the consensus clustering approach from
-    'ConsensusClusteringPlus' for longitudinal data. The longitudinal data is
+    'ConsensusClusterPlus' for longitudinal data. The longitudinal data is
     clustered with flexible mixture models from 'flexmix', while the consensus
     matrices are hierarchically clustered as in 'ConsensusClusterPlus'. By using
     the flexibility from 'flexmix' and 'FactoMineR', one can use mixed data

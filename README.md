@@ -38,10 +38,10 @@ test_data <- data.frame(
 )
 ```
 
-In the following approach, the variables `var_1` and `var_2` each are modelled as
+In the following approach, the variables `var_1` and `var_2` each are modeled as
 dependent on a smooth function of time, taking the multiple measurements for each
 subject into account. The assumption is that `var_1` and `var_2` represent a
-multivariate outcome. The modelling is specified in the `flexmix` drivers
+multivariate outcome. The modeling is specified in the `flexmix` drivers
 and the `flexmix_formula`:
 
 ``` r
@@ -73,7 +73,7 @@ plot(clustering)
 ```
 
 ### Detailed explanation
-For a detailed explanation how you can use `longmixr` to analyse your
+For a detailed explanation how you can use `longmixr` to analyze your
 longitudinal data, check out the
 [Example clustering analysis vignette](https://cellmapslab.github.io/longmixr/articles/analysis_workflow.html).
 

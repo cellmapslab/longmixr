@@ -21,7 +21,7 @@
 #' drivers of class \code{FLXMR}
 #' @param flexmix_formula a \code{formula} object that describes the \code{flexmix}
 #' model relative to the formula in the flexmix drivers (the dot in the flexmix
-#' drivers is replaced, see the example). That means that you usueally only
+#' drivers is replaced, see the example). That means that you usually only
 #' specify the right-hand side of the formula here. However, this is not enforced
 #' or checked to give you more flexibility over the \code{flexmix} interface
 #' @param title name of the clustering; used if \code{writeTable = TRUE}
