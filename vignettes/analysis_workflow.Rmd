@@ -29,7 +29,7 @@ library(purrr)
 
 # Introduction
 This vignette gives an overview how to inspect and prepare the data for a
-clustering analysis with `longmixr`, do the clustering and analyse the results.
+clustering analysis with `longmixr`, do the clustering and analyze the results.
 
 # Consensus clustering
 Consensus clustering tries to generate more robust clustering results. Instead
@@ -42,10 +42,10 @@ distance matrix.
 
 For an overview about the used consensus clustering methodology, see
 [Monti, Stefano, et al. "Consensus clustering: a resampling-based method for class discovery and visualization of gene expression microarray data." Machine learning 52.1 (2003): 91-118.](https://link.springer.com/content/pdf/10.1023/A:1023949509487.pdf)
-The code and provided visualisations of `longmixr` is based on the
+The code and provided visualizations of `longmixr` is based on the
 `ConsensusClusterPlus` package, [Wilkerson, Matthew D., and D. Neil Hayes. "ConsensusClusterPlus: a class discovery tool with confidence assessments and item tracking." Bioinformatics 26.12 (2010): 1572-1573.](https://doi.org/10.1093/bioinformatics/btq170)
 In contrast to `ConsensusClusterPlus`, we use the package `flexmix`,
-[Grun, Bettina, and Friedrich Leisch. "FlexMix version 2: finite mixtures with concomitant variables and varying and constant parameters." (2008): 1.](https://doi.org/10.18637/jss.v028.i04), instead of hierarchical
+[Grün, Bettina, and Friedrich Leisch. "FlexMix version 2: finite mixtures with concomitant variables and varying and constant parameters." (2008): 1.](https://doi.org/10.18637/jss.v028.i04), instead of hierarchical
 clustering which allows us to model longitudinal data.
 
 # Data
@@ -234,7 +234,7 @@ cluster_data <- bind_cols(
 ## Variable importance
 We can check how well the variables are correlated with the components and which
 variables contribute the most to the components found in the dimension reduction
-step. For the visualisation, we use functions from the `factoextra` package.
+step. For the visualization, we use functions from the `factoextra` package.
 
 Questionnaire A:
 
@@ -262,7 +262,7 @@ fviz_contrib(quest_C_dim, "var", axes = 1)
 
 # Effect of confounders
 There can be confounders that have a known effect on your outcome which you
-don't want to analyse. One solution is to first "regress them out" in a linear
+don't want to analyze. One solution is to first "regress them out" in a linear
 model and only work with the resulting residuals. The following steps are done
 with the components from the dimension reduction.
 
@@ -375,7 +375,7 @@ cluster_model <- longitudinal_consensus_cluster(data = cluster_data_resid,
                                                 final_linkage = "ward.D2")
 ```
 
-# Analyse the clustering
+# Analyze the clustering
 ## Determine the best clustering
 First, plot the analysis plots provided by `longmixr`. They are the same
 provided by the `ConsensusClusterPlus` package which is the basis for `longmixr`:
@@ -435,7 +435,7 @@ item-consensus for all other clusters.
 In the example, the item-consensus plots suggest a two cluster solution fits the
 data best.
 
-## Visualise the clusters
+## Visualize the clusters
 First extract the cluster information (only for the two cluster solution) from
 the model:
 ```{r}
@@ -454,7 +454,7 @@ cluster_data_resid <- cluster_data_resid %>%
 ```
 
 ### Components used in clustering
-Now the components used for the clustering can be visualised as spaghetti plots.
+Now the components used for the clustering can be visualized as spaghetti plots.
 First, define the plotting function:
 
 ```{r}
@@ -514,7 +514,7 @@ plot_spaghetti(num_clus = 2, var_type = "quest_C", var_nums = 1)
 
 ### Original data
 Most of the original variables are categorical variables. For a better
-visualisation of the change over time, we use alluvial plots and plot every
+visualization of the change over time, we use alluvial plots and plot every
 item (variable) separately.
 
 Define the plotting function for alluvial plots:
@@ -625,4 +625,4 @@ original_data %>%
   theme_bw()
 ```
 
-Also the left-out variable shows a different behaviour between the two clusters.
+Also the left-out variable shows a different behavior between the two clusters.
