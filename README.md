@@ -10,7 +10,7 @@ performed with [`flexmix`](https://cran.r-project.org/package=flexmix). It uses 
 replaces the clustering of the longitudinal data with a `flexmix` model.
 
 ## Installation
-You can install longmixr from [github](https://www.github.com) with:
+You can install longmixr from github with:
 
 ``` r
 remotes::install_github("cellmapslab/longmixr")
