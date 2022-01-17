@@ -33,7 +33,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -65,6 +65,9 @@
     
   </div>
 </nav><div class="container template-article">
+
+
+
 <script src="analysis_workflow_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <main id="main"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Example clustering analysis</h1>
@@ -86,20 +89,20 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.sthda.com/english/rpkgs/factoextra" class="external-link">factoextra</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/" class="external-link">lme4</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org" class="external-link">purrr</a></span><span class="op">)</span></code></pre></div>
-<div class="section level1">
-<h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h1>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
 <p>This vignette gives an overview how to inspect and prepare the data for a clustering analysis with <code>longmixr</code>, do the clustering and analyze the results.</p>
 </div>
-<div class="section level1">
-<h1 id="consensus-clustering">Consensus clustering<a class="anchor" aria-label="anchor" href="#consensus-clustering"></a>
-</h1>
+<div class="section level2">
+<h2 id="consensus-clustering">Consensus clustering<a class="anchor" aria-label="anchor" href="#consensus-clustering"></a>
+</h2>
 <p>Consensus clustering tries to generate more robust clustering results. Instead of doing the clustering once, the clustering is performed several times on different subsets of the data. In every subset, for all pairs of subjects it is recorded if they cluster together in the same cluster. The average of this information is called the consensus matrix. The final clustering solution is obtained by a hierarchical clustering step using the consensus matrix as its distance matrix.</p>
 <p>For an overview about the used consensus clustering methodology, see <a href="https://link.springer.com/content/pdf/10.1023/A:1023949509487.pdf" class="external-link">Monti, Stefano, et al. “Consensus clustering: a resampling-based method for class discovery and visualization of gene expression microarray data.” Machine learning 52.1 (2003): 91-118.</a> The code and provided visualizations of <code>longmixr</code> is based on the <code>ConsensusClusterPlus</code> package, <a href="https://doi.org/10.1093/bioinformatics/btq170" class="external-link">Wilkerson, Matthew D., and D. Neil Hayes. “ConsensusClusterPlus: a class discovery tool with confidence assessments and item tracking.” Bioinformatics 26.12 (2010): 1572-1573.</a> In contrast to <code>ConsensusClusterPlus</code>, we use the package <code>flexmix</code>, <a href="https://doi.org/10.18637/jss.v028.i04" class="external-link">Grün, Bettina, and Friedrich Leisch. “FlexMix version 2: finite mixtures with concomitant variables and varying and constant parameters.” (2008): 1.</a>, instead of hierarchical clustering which allows us to model longitudinal data.</p>
 </div>
-<div class="section level1">
-<h1 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
-</h1>
+<div class="section level2">
+<h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
+</h2>
 <p>For the analysis, we use a simulated data set contained in <code>longmixr</code>. Please note that <code>longmixr</code> can only deal with complete data sets.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fake_questionnaire_data"</span><span class="op">)</span>
@@ -134,9 +137,9 @@
 <li>one additional cross-sectional continuous variable</li>
 </ul>
 <p>Because the data set was simulated, it also contains the group variable from the simulation. In your data set you typically don’t have such a variable because you don’t know the groups. For the following analysis, the group variable is not required.</p>
-<div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h2>
+<div class="section level3">
+<h3 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h3>
 <p>It is recommended to first get an overview about the data distribution:</p>
 <p>Age:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -211,9 +214,9 @@
 <p>The distribution of this variable is shown as a boxplot.</p>
 </div>
 </div>
-<div class="section level1">
-<h1 id="dimension-reduction">Dimension reduction<a class="anchor" aria-label="anchor" href="#dimension-reduction"></a>
-</h1>
+<div class="section level2">
+<h2 id="dimension-reduction">Dimension reduction<a class="anchor" aria-label="anchor" href="#dimension-reduction"></a>
+</h2>
 <p>Especially if you have a lot of variables, it can make sense to reduce the dimensionality for your analysis. For demonstration purposes, we apply a dimension reduction approach also to the example data. For this, we use the function <code>FAMD</code> from the package <code>FactoMineR</code>. It uses a similar approach as PCA for categorical data. For better interpretability, we apply the dimension reduction per questionnaire.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">quest_A_dim</span> <span class="op">&lt;-</span> <span class="va">fake_questionnaire_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
@@ -259,9 +262,9 @@
   <span class="va">quest_B_comp</span>,
   <span class="va">quest_C_comp</span>
 <span class="op">)</span></code></pre></div>
-<div class="section level2">
-<h2 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
-</h2>
+<div class="section level3">
+<h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
+</h3>
 <p>We can check how well the variables are correlated with the components and which variables contribute the most to the components found in the dimension reduction step. For the visualization, we use functions from the <code>factoextra</code> package.</p>
 <p>Questionnaire A:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -292,9 +295,9 @@
 <p><img src="analysis_workflow_files/figure-html/unnamed-chunk-15-2.png" width="576"></p>
 </div>
 </div>
-<div class="section level1">
-<h1 id="effect-of-confounders">Effect of confounders<a class="anchor" aria-label="anchor" href="#effect-of-confounders"></a>
-</h1>
+<div class="section level2">
+<h2 id="effect-of-confounders">Effect of confounders<a class="anchor" aria-label="anchor" href="#effect-of-confounders"></a>
+</h2>
 <p>There can be confounders that have a known effect on your outcome which you don’t want to analyze. One solution is to first “regress them out” in a linear model and only work with the resulting residuals. The following steps are done with the components from the dimension reduction.</p>
 <p>One example of the age effect in questionnaire A:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -338,9 +341,9 @@
 <span class="co">#&gt; `geom_smooth()` using formula 'y ~ x'</span></code></pre></div>
 <p><img src="analysis_workflow_files/figure-html/unnamed-chunk-18-1.png" width="576"></p>
 </div>
-<div class="section level1">
-<h1 id="clustering">Clustering<a class="anchor" aria-label="anchor" href="#clustering"></a>
-</h1>
+<div class="section level2">
+<h2 id="clustering">Clustering<a class="anchor" aria-label="anchor" href="#clustering"></a>
+</h2>
 <p>First we need to set up the models that are estimated and used to assign each observation a cluster. For every variable, one model is estimated.</p>
 <p>First define the names of the variables. In our case, these are the components derived from the questionnaires and adjusted for the age effect:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
@@ -393,12 +396,12 @@
 <span class="co">#&gt; 2 : *</span>
 <span class="co">#&gt; 3 : *</span></code></pre></div>
 </div>
-<div class="section level1">
-<h1 id="analyze-the-clustering">Analyze the clustering<a class="anchor" aria-label="anchor" href="#analyze-the-clustering"></a>
-</h1>
 <div class="section level2">
-<h2 id="determine-the-best-clustering">Determine the best clustering<a class="anchor" aria-label="anchor" href="#determine-the-best-clustering"></a>
+<h2 id="analyze-the-clustering">Analyze the clustering<a class="anchor" aria-label="anchor" href="#analyze-the-clustering"></a>
 </h2>
+<div class="section level3">
+<h3 id="determine-the-best-clustering">Determine the best clustering<a class="anchor" aria-label="anchor" href="#determine-the-best-clustering"></a>
+</h3>
 <p>First, plot the analysis plots provided by <code>longmixr</code>. They are the same provided by the <code>ConsensusClusterPlus</code> package which is the basis for <code>longmixr</code>:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cluster_model</span><span class="op">)</span></code></pre></div>
@@ -414,9 +417,9 @@
 <p>In the item-consensus plot for three clusters, some subjects are assigned to different clusters in different subsampling steps. Therefore, for these items the mean item-consensus is shown for cluster 2 and cluster 3. In general, for a given subject you want to have a high item-consensus for one cluster and low item-consensus for all other clusters.</p>
 <p>In the example, the item-consensus plots suggest a two cluster solution fits the data best.</p>
 </div>
-<div class="section level2">
-<h2 id="visualize-the-clusters">Visualize the clusters<a class="anchor" aria-label="anchor" href="#visualize-the-clusters"></a>
-</h2>
+<div class="section level3">
+<h3 id="visualize-the-clusters">Visualize the clusters<a class="anchor" aria-label="anchor" href="#visualize-the-clusters"></a>
+</h3>
 <p>First extract the cluster information (only for the two cluster solution) from the model:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cluster_assignments</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_clusters.html">get_clusters</a></span><span class="op">(</span><span class="va">cluster_model</span>, number_clusters <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
@@ -426,9 +429,9 @@
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">cluster_assignments</span>, by <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>
 <span class="va">cluster_data_resid</span> <span class="op">&lt;-</span> <span class="va">cluster_data_resid</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">cluster_assignments</span>, by <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span></code></pre></div>
-<div class="section level3">
-<h3 id="components-used-in-clustering">Components used in clustering<a class="anchor" aria-label="anchor" href="#components-used-in-clustering"></a>
-</h3>
+<div class="section level4">
+<h4 id="components-used-in-clustering">Components used in clustering<a class="anchor" aria-label="anchor" href="#components-used-in-clustering"></a>
+</h4>
 <p>Now the components used for the clustering can be visualized as spaghetti plots. First, define the plotting function:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plot_spaghetti</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span> <span class="op">=</span> <span class="va">cluster_data_resid</span>,
@@ -481,9 +484,9 @@
 <code class="sourceCode R"><span class="fu">plot_spaghetti</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, var_type <span class="op">=</span> <span class="st">"quest_C"</span>, var_nums <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-1.png" width="576"></p>
 </div>
-<div class="section level3">
-<h3 id="original-data">Original data<a class="anchor" aria-label="anchor" href="#original-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="original-data">Original data<a class="anchor" aria-label="anchor" href="#original-data"></a>
+</h4>
 <p>Most of the original variables are categorical variables. For a better visualization of the change over time, we use alluvial plots and plot every item (variable) separately.</p>
 <p>Define the plotting function for alluvial plots:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
@@ -567,9 +570,9 @@
 <p><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-1.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-2.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-3.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-5.png" width="576"></p>
 <p>The comparison of the two clusters regarding the original variables show differences how some items of the categorical questionnaires and some variables of the continuous questionnaires differ between the two clusters.</p>
 </div>
-<div class="section level3">
-<h3 id="cluster-comparison">Cluster comparison<a class="anchor" aria-label="anchor" href="#cluster-comparison"></a>
-</h3>
+<div class="section level4">
+<h4 id="cluster-comparison">Cluster comparison<a class="anchor" aria-label="anchor" href="#cluster-comparison"></a>
+</h4>
 <p>As a final step, variables that were not used in the clustering, for example cross-sectional variables, can be compared across the found clusters. In this case, <code>single_continuous_variable</code> only has one value per subject and was left out from the clustering:</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">original_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
@@ -597,7 +600,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
     </footer>
