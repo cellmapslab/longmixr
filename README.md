@@ -3,6 +3,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/cellmapslab/longmixr/workflows/R-CMD-check/badge.svg)](https://github.com/cellmapslab/longmixr/actions)
+[![CRAN status](https://www.r-pkg.org/badges/version/longmixr)](https://CRAN.R-project.org/package=longmixr)
 <!-- badges: end -->
 
 The goal of longmixr is to provide consensus clustering for longitudinal clustering
@@ -10,7 +11,13 @@ performed with [`flexmix`](https://cran.r-project.org/package=flexmix). It uses 
 replaces the clustering of the longitudinal data with a `flexmix` model.
 
 ## Installation
-You can install longmixr from github with:
+You can install longmixr from CRAN with:
+
+``` r
+install.packages("longmixr")
+```
+
+You can install the latest version from github with:
 
 ``` r
 remotes::install_github("cellmapslab/longmixr")
