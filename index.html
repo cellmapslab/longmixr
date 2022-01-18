@@ -85,11 +85,14 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install longmixr from github with:</p>
+<p>You can install longmixr from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"longmixr"</span><span class="op">)</span></code></pre></div>
+<p>You can install the latest version from github with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"cellmapslab/longmixr"</span><span class="op">)</span></code></pre></div>
 <p>If you want to render the vignette, use:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"cellmapslab/longmixr"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Please note that for the vignette a lot more dependencies are installed.</p>
 </div>
@@ -97,7 +100,7 @@
 <h2 id="basic-usage">Basic usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h2>
 <p>You need a dataset with a column that identifies the subject, a column that denotes the time point of the measurement and variables that you want to model.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
 <span class="va">test_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
   patient_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, each <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,
@@ -106,7 +109,7 @@
   var_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1.5</span>, to <span class="op">=</span> <span class="fl">0</span>, length.out <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p>In the following approach, the variables <code>var_1</code> and <code>var_2</code> each are modeled as dependent on a smooth function of time, taking the multiple measurements for each subject into account. The assumption is that <code>var_1</code> and <code>var_2</code> represent a multivariate outcome. The modeling is specified in the <code>flexmix</code> drivers and the <code>flexmix_formula</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">flexmix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/flexmix/man/FLXMRmgcv.html" class="external-link">FLXMRmgcv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="st">"var_1 ~ ."</span><span class="op">)</span><span class="op">)</span>,
                    <span class="fu">flexmix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/flexmix/man/FLXMRmgcv.html" class="external-link">FLXMRmgcv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="st">"var_2 ~ ."</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="va">clustering</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/longitudinal_consensus_cluster.html">longitudinal_consensus_cluster</a></span><span class="op">(</span>
@@ -118,7 +121,7 @@
   flexmix_formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="st">"~s(visit, k = 4) | patient_id"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The results of the clustering can be assessed via several plots. For every specified number of clusters, the consensus matrix and the resulting hierarchical clustering on this matrix is shown. Additionally, the consensus CDF and the delta Area plots give a measure which number of cluster is optimal. The tracking plot gives an overview how the observations are distributed across the different clusters for different numbers of specified clusters. The item (subject) consensus plot shows the average consensus of each subject with all other subjects that belong to one cluster. The cluster consensus plot depicts the average consensus between all members of each cluster.</p>
 <p>The above mentioned plots are generated when calling the <code>plot</code> function:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">clustering</span><span class="op">)</span></code></pre></div>
 <div class="section level3">
 <h3 id="detailed-explanation">Detailed explanation<a class="anchor" aria-label="anchor" href="#detailed-explanation"></a>
@@ -130,7 +133,7 @@
 <h2 id="cross-sectional-clustering">Cross-sectional clustering<a class="anchor" aria-label="anchor" href="#cross-sectional-clustering"></a>
 </h2>
 <p>Additionally, this package provides a wrapper function around the <code>ConsensusClusterPlus</code> function to work with mixed continuous and categorical data (by using the Gower distance):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dc</span> <span class="op">&lt;-</span> <span class="va">mtcars</span>
 <span class="co"># scale continuous variables</span>
 <span class="va">dc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span>, <span class="va">scale</span><span class="op">)</span>
@@ -191,6 +194,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/cellmapslab/longmixr/actions" class="external-link"><img src="https://github.com/cellmapslab/longmixr/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=longmixr" class="external-link"><img src="https://www.r-pkg.org/badges/version/longmixr" alt="CRAN status"></a></li>
 </ul>
 </div>
 
