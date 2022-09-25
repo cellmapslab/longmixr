@@ -55,3 +55,15 @@ test_that("the color_palette argument is correct", {
   expect_silent(plot(clustering,
                      color_palette = c("#9999FF", "#7F7FFF", "#6666FF")))
 })
+
+test_that("the which_plots argument is correct", {
+  expect_error(plot(clustering, which_plots = 3))
+  expect_error(plot(clustering, which_plots = "consensusmatrix_4"),
+               regexp = "which_plot must be one of all, consensusmatrix_legend, consensusmatrix, consensusmatrix_2, consensusmatrix_3, CDF, delta, cluster_tracking, item_consensus, cluster_consensus.")
+  expect_snapshot_file(save_png(plot(clustering, which_plots = "consensusmatrix")),
+                       "plot_lcc_output_consensusmatrix.png")
+  expect_snapshot_file(save_png(plot(clustering, which_plots = "delta")),
+                       "plot_lcc_output_delta.png")
+  expect_snapshot_file(save_png(plot(clustering, which_plots = c("CDF", "cluster_tracking"))),
+                       "plot_lcc_output_cdf_cluster_tracking.png")
+})
