@@ -432,6 +432,9 @@ the mean item-consensus is shown for cluster 2 and cluster 3. In general, for a
 given subject you want to have a high item-consensus for one cluster and low
 item-consensus for all other clusters.
 
+If you only want to plot certain plots and not all, you can select them with the
+`which_plots` argument. For more information, see `help(plot.lcc)`.
+
 In the example, the item-consensus plots suggest a two cluster solution fits the
 data best.
 

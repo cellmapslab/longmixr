@@ -20,10 +20,10 @@ clustering <- longitudinal_consensus_cluster(
 # helper function to save the plots
 # because plot.lcc outputs several plots at once, I store them all in one big
 # png and compare this png
-save_png <- function(code, width = 400, height = 3200) {
+save_png <- function(code, width = 800, height = 800) {
   path <- tempfile(fileext = ".png")
   png(path, width = width, height = height)
-  op <- par(mfrow = c(8, 1))
+  op <- par(mfrow = c(4, 2))
   on.exit(dev.off())
   on.exit(par(op), add = TRUE)
   code
@@ -41,6 +41,8 @@ test_that("a plot is generated in the CI", {
 
 test_that("the plots stay the same", {
   skip_on_ci()
+  # because plot.lcc changes the graphics parameters, currently only the last
+  # plot is recorded. Therefore, I can only check the last plot.
   expect_snapshot_file(save_png(plot(clustering)), "plot_lcc_output.png")
 })
 
@@ -54,4 +56,20 @@ test_that("the color_palette argument is correct", {
 
   expect_silent(plot(clustering,
                      color_palette = c("#9999FF", "#7F7FFF", "#6666FF")))
+})
+
+test_that("the which_plots argument is correct", {
+  expect_error(plot(clustering, which_plots = 3))
+  expect_error(plot(clustering, which_plots = "consensusmatrix_4"),
+               regexp = "which_plot must be one of all, consensusmatrix_legend, consensusmatrix, consensusmatrix_2, consensusmatrix_3, CDF, delta, cluster_tracking, item_consensus, cluster_consensus.")
+  skip_on_ci()
+  # because plot.lcc changes the graphics parameters, currently only the last
+  # plot is recorded. Therefore, I can only check the last plot for the
+  # consensus plots, even though I specified several plots.
+  expect_snapshot_file(save_png(plot(clustering, which_plots = "consensusmatrix")),
+                       "plot_lcc_output_consensusmatrix.png")
+  expect_snapshot_file(save_png(plot(clustering, which_plots = "delta")),
+                       "plot_lcc_output_delta.png")
+  expect_snapshot_file(save_png(plot(clustering, which_plots = c("CDF", "cluster_tracking"))),
+                       "plot_lcc_output_cdf_cluster_tracking.png")
 })

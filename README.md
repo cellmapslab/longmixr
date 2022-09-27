@@ -79,6 +79,14 @@ The above mentioned plots are generated when calling the `plot` function:
 plot(clustering)
 ```
 
+You can also select which plots you want to generate:
+
+``` r
+plot(clustering, which_plots = "consensusmatrix_2")
+```
+
+![consensus matrix plot showing two clusters cleanly separated, one bigger than the other](man/figures/example_consensusmatrix_2.png)
+
 ### Detailed explanation
 For a detailed explanation how you can use `longmixr` to analyze your
 longitudinal data, check out the

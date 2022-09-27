@@ -120,18 +120,23 @@ triangle <- function(input_matrix,
 #'
 #' @param matrix_list list of all consensus matrices
 #' @param breaks number of breaks
+#' @param which_plots which plots should be plotted, can include \code{"CDF"} or
+#' \code{"delta"}
 #'
 #' @importFrom graphics hist lines legend
 #' @importFrom grDevices rainbow
 #'
-#' @return a CDF plot
+#' @return a CDF plot and/or delta CDF plot
 #' @noRd
 CDF <- function(matrix_list,
-                breaks = 100) {
-  # set up the plot
-  plot(0, xlim = c(0, 1), ylim = c(0, 1), col = "white",
-       bg = "white", xlab = "consensus index", ylab = "CDF",
-       main = "consensus CDF", las = 2)
+                breaks = 100,
+                which_plots = c("CDF", "delta")) {
+  if ("CDF" %in% which_plots) {
+    # set up the plot
+    plot(0, xlim = c(0, 1), ylim = c(0, 1), col = "white",
+         bg = "white", xlab = "consensus index", ylab = "CDF",
+         main = "consensus CDF", las = 2)
+  }
 
   k <- length(matrix_list)
   this_colors <- rainbow(k - 1)
@@ -150,12 +155,16 @@ CDF <- function(matrix_list,
       this_area <- this_area + h$counts[bi] * (h$breaks[bi + 1] - h$breaks[bi])
     }
     area_k <- c(area_k, this_area)
-    # add the CDF to the plot
-    lines(h$mids, h$counts, col = this_colors[i - 1], lwd = 2,
-          type = "l")
+    if ("CDF" %in% which_plots) {
+      # add the CDF to the plot
+      lines(h$mids, h$counts, col = this_colors[i - 1], lwd = 2,
+            type = "l")
+    }
   }
-  legend(0.8, 0.5, legend = paste(rep("", k - 1), seq(2, k, by = 1), sep = ""),
-         fill = this_colors)
+  if ("CDF" %in% which_plots) {
+    legend(0.8, 0.5, legend = paste(rep("", k - 1), seq(2, k, by = 1), sep = ""),
+           fill = this_colors)
+  }
 
   # plot the area under the CDF change
   delta_k <- area_k[1]
@@ -163,9 +172,11 @@ CDF <- function(matrix_list,
     # proportional increase relative to the previous k
     delta_k <- c(delta_k, (area_k[i] - area_k[i - 1]) / area_k[i - 1])
   }
-  plot(1 + (1:length(delta_k)), y = delta_k, xlab = "k",
-       ylab = "relative change in area under CDF curve",
-       main = "Delta area", type = "b")
+  if ("delta" %in% which_plots) {
+    plot(1 + (1:length(delta_k)), y = delta_k, xlab = "k",
+         ylab = "relative change in area under CDF curve",
+         main = "Delta area", type = "b")
+  }
 }
 
 #' Assign colours to cluster assignments
