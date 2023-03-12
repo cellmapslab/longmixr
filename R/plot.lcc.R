@@ -9,6 +9,8 @@
 #' of clusters, \code{"CDF"}, \code{"delta"}, \code{"cluster_tracking"},
 #' \code{"item_consensus"} or \code{"cluster_consensus"}. When you want to plot
 #' all consensus matrices and the legend, you can just use \code{"consensusmatrix"}.
+#' @param n_item_consensus determines how many item consensus plots are plotted
+#' together in one plot before a new plot is used; the default is \code{3}.
 #' @param ... additional parameters for plotting; currently not used
 #'
 #' @return Plots the following plots (when selected):\tabular{ll}{
@@ -35,10 +37,12 @@
 plot.lcc <- function(x,
                      color_palette = NULL,
                      which_plots = "all",
+                     n_item_consensus = 3,
                      ...) {
 
   checkmate::assert_class(x, "lcc")
   checkmate::assert_character(color_palette, null.ok = TRUE)
+  checkmate::assert_int(n_item_consensus, lower = 1)
 
   # determine the possible consensus matrices
   possible_consensusmatrix <- paste0("consensusmatrix_",
@@ -178,7 +182,7 @@ plot.lcc <- function(x,
   cci <- rbind()
   sumx <- list()
   colors_arr <- c()
-  old_par <- par(mfrow = c(3, 1), mar = c(4, 3, 2, 0))
+  old_par <- par(mfrow = c(n_item_consensus, 1), mar = c(4, 3, 2, 0))
   on.exit(par(old_par))
   # tk is the number of predefined clusters
   for (tk in seq(from = 2, to = length(x), by = 1)) {

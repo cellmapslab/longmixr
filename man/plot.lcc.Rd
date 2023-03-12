@@ -4,7 +4,7 @@
 \alias{plot.lcc}
 \title{Plot a longitudinal consensus clustering}
 \usage{
-\method{plot}{lcc}(x, color_palette = NULL, which_plots = "all", ...)
+\method{plot}{lcc}(x, color_palette = NULL, which_plots = "all", n_item_consensus = 3, ...)
 }
 \arguments{
 \item{x}{\code{lcc} object (output from \code{\link{longitudinal_consensus_cluster}})}
@@ -13,11 +13,14 @@
 
 \item{which_plots}{determine which plots should be plotted; the default is \code{"all"}.
 Alternatively, a combination of the following values can be specified to plot
-only certain plots of the below mentioned plots: \code{"consensusmatrix_legend"},
+only some of the below mentioned plots: \code{"consensusmatrix_legend"},
 \code{"consensusmatrix_x"} where \code{x} is replaced by the corresponding number
 of clusters, \code{"CDF"}, \code{"delta"}, \code{"cluster_tracking"},
 \code{"item_consensus"} or \code{"cluster_consensus"}. When you want to plot
 all consensus matrices and the legend, you can just use \code{"consensusmatrix"}.}
+
+\item{n_item_consensus}{determines how many item consensus plots are plotted
+together in one plot before a new plot is used; the default is \code{3}.}
 
 \item{...}{additional parameters for plotting; currently not used}
 }
