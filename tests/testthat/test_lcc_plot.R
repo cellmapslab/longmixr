@@ -73,3 +73,14 @@ test_that("the which_plots argument is correct", {
   expect_snapshot_file(save_png(plot(clustering, which_plots = c("CDF", "cluster_tracking"))),
                        "plot_lcc_output_cdf_cluster_tracking.png")
 })
+
+test_that("the n_item_consensus argument is correct", {
+  expect_error(plot(clustering, n_item_consensus = "test"))
+  expect_error(plot(clustering, n_item_consensus = -1))
+
+  skip_on_ci()
+  # only the last plot (with k=3) is recorded
+  expect_snapshot_file(save_png(plot(clustering, which_plots = "item_consensus",
+                                     n_item_consensus = 1)),
+                       "plot_lcc_output_item_consenus_1.png")
+})
