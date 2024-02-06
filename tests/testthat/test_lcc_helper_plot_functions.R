@@ -206,7 +206,7 @@ test_that("plot_alluvial generates a plot in the CI", {
   expect_s3_class(plot_alluvial(
     model = clustering,
     data = test_data,
-    variable_names = "cat_1",
+    variable_name = "cat_1",
     time_variable = "visit"
   ),
   c("gg", "ggplot"))
