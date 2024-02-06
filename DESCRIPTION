@@ -1,6 +1,6 @@
 Package: longmixr
 Title: Longitudinal Consensus Clustering with 'flexmix'
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: 
     c(person(given = "Jonas",
              family = "Hagenberg",
@@ -34,6 +34,7 @@ biocViews:
 Imports: 
     checkmate,
     ConsensusClusterPlus,
+    ggplot2,
     graphics,
     grDevices,
     flexmix,
@@ -46,7 +47,6 @@ Suggests:
     rmarkdown,
     dplyr,
     tidyr,
-    ggplot2,
     ggalluvial,
     FactoMineR,
     factoextra,
