@@ -8,8 +8,8 @@
 <meta name="description" content="longmixr">
 <title>Example clustering analysis • longmixr</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Example clustering analysis">
 <meta property="og:description" content="longmixr">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">longmixr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -566,149 +566,155 @@ join it with the original data:</p>
 <h4 id="components-used-in-clustering">Components used in clustering<a class="anchor" aria-label="anchor" href="#components-used-in-clustering"></a>
 </h4>
 <p>Now the components used for the clustering can be visualized as
-spaghetti plots. First, define the plotting function:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plot_spaghetti</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span> <span class="op">=</span> <span class="va">cluster_data_resid</span>,</span>
-<span>                           <span class="va">num_clus</span> <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                           <span class="va">var_type</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quest_A"</span>, <span class="st">"quest_B"</span>, <span class="st">"quest_C"</span><span class="op">)</span>,</span>
-<span>                           <span class="va">var_nums</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
-<span>                           <span class="va">scale_arg</span> <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">var_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span><span class="va">var_type</span><span class="op">)</span></span>
-<span>  <span class="va">clus_assign</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"assignment_num_clus_"</span>, <span class="va">num_clus</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
-<span>      cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">var_type</span>, <span class="st">"_"</span>, <span class="va">var_nums</span>, <span class="st">"_resid"</span><span class="op">)</span>,</span>
-<span>      names_to <span class="op">=</span> <span class="st">"variable"</span></span>
-<span>    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="co"># this step to create a patient_idID per variable is needed, otherwise</span></span>
-<span>    <span class="co"># ggplot can't differentiate between the different variables</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">ID</span>, <span class="st">"_"</span>, <span class="va">variable</span><span class="op">)</span>,</span>
-<span>           <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">visit</span>, <span class="va">variable</span>, <span class="va">ID</span><span class="op">)</span>, <span class="va">as.factor</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">additional_data</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">visit</span>, <span class="va">value</span>, <span class="va">variable</span>, <span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">visit</span>, <span class="va">variable</span>, <span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span>,</span>
-<span>              sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>, y <span class="op">=</span> <span class="va">value</span>, col <span class="op">=</span> <span class="va">variable</span>, group <span class="op">=</span> <span class="va">ID</span><span class="op">)</span>,</span>
-<span>              alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">additional_data</span>,</span>
-<span>                mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>, y <span class="op">=</span> <span class="va">mean</span>, ymin <span class="op">=</span> <span class="va">mean</span> <span class="op">-</span> <span class="va">sd</span>, ymax <span class="op">=</span> <span class="va">mean</span> <span class="op">+</span> <span class="va">sd</span>,</span>
-<span>                              fill <span class="op">=</span> <span class="va">variable</span>, group <span class="op">=</span> <span class="va">variable</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">additional_data</span>,</span>
-<span>              mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>, y <span class="op">=</span> <span class="va">mean</span>, col <span class="op">=</span> <span class="va">variable</span>, group <span class="op">=</span> <span class="va">variable</span><span class="op">)</span>,</span>
-<span>              size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, scales <span class="op">=</span> <span class="va">scale_arg</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+spaghetti plots. For this, we can use the <code>plot_spaghetti</code>
+function where we specify which variables should be plotted. The ID
+variable is automatically derived from the <code>longmixr</code> model,
+but we need to provide the variable that depicts the time.</p>
 <p>Questionnaire A:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_spaghetti</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, var_type <span class="op">=</span> <span class="st">"quest_A"</span>, var_nums <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `all_of(var)` (or `any_of(var)`) instead of `.data[[var]]`</span></span>
-<span><span class="co">#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-26-1.png" width="576"></p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_spaghetti.html">plot_spaghetti</a></span><span class="op">(</span></span>
+<span>  model <span class="op">=</span> <span class="va">cluster_model</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">cluster_data_resid</span>,</span>
+<span>  variable_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quest_A_1_resid"</span>, <span class="st">"quest_A_2_resid"</span>, <span class="st">"quest_A_3_resid"</span><span class="op">)</span>,</span>
+<span>  time_variable <span class="op">=</span> <span class="st">"visit"</span>,</span>
+<span>  number_of_clusters <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = cluster_data_resid, :</span></span>
+<span><span class="co">#&gt; The provided data contains already columns with the pattern</span></span>
+<span><span class="co">#&gt; 'assignment_num_clus_'. These columns were removed and replaced by the cluster</span></span>
+<span><span class="co">#&gt; information from the longmixr model.</span></span></code></pre></div>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-25-1.png" width="576"></p>
 <p>Questionnaire B:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_spaghetti</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, var_type <span class="op">=</span> <span class="st">"quest_B"</span>, var_nums <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_spaghetti.html">plot_spaghetti</a></span><span class="op">(</span></span>
+<span>  model <span class="op">=</span> <span class="va">cluster_model</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">cluster_data_resid</span>,</span>
+<span>  variable_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quest_B_1_resid"</span><span class="op">)</span>,</span>
+<span>  time_variable <span class="op">=</span> <span class="st">"visit"</span>,</span>
+<span>  number_of_clusters <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = cluster_data_resid, :</span></span>
+<span><span class="co">#&gt; The provided data contains already columns with the pattern</span></span>
+<span><span class="co">#&gt; 'assignment_num_clus_'. These columns were removed and replaced by the cluster</span></span>
+<span><span class="co">#&gt; information from the longmixr model.</span></span></code></pre></div>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-26-1.png" width="576"></p>
 <p>Questionnaire C:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_spaghetti</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, var_type <span class="op">=</span> <span class="st">"quest_C"</span>, var_nums <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-1.png" width="576"></p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_spaghetti.html">plot_spaghetti</a></span><span class="op">(</span></span>
+<span>  model <span class="op">=</span> <span class="va">cluster_model</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">cluster_data_resid</span>,</span>
+<span>  variable_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quest_C_1_resid"</span><span class="op">)</span>,</span>
+<span>  time_variable <span class="op">=</span> <span class="st">"visit"</span>,</span>
+<span>  number_of_clusters <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = cluster_data_resid, :</span></span>
+<span><span class="co">#&gt; The provided data contains already columns with the pattern</span></span>
+<span><span class="co">#&gt; 'assignment_num_clus_'. These columns were removed and replaced by the cluster</span></span>
+<span><span class="co">#&gt; information from the longmixr model.</span></span></code></pre></div>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
 </div>
 <div class="section level4">
 <h4 id="original-data">Original data<a class="anchor" aria-label="anchor" href="#original-data"></a>
 </h4>
 <p>Most of the original variables are categorical variables. For a
 better visualization of the change over time, we use alluvial plots and
-plot every item (variable) separately.</p>
-<p>Define the plotting function for alluvial plots:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plot_alluvial</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span> <span class="op">=</span> <span class="va">original_data</span>,</span>
-<span>                          <span class="va">num_clus</span> <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                          <span class="va">var_name</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">clus_assign</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"assignment_num_clus_"</span>, <span class="va">num_clus</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>,</span>
-<span>               stratum <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="va">var_name</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>               alluvium <span class="op">=</span> <span class="va">ID</span>,</span>
-<span>               fill <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="va">var_name</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>               label <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="va">var_name</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"qual"</span>, palette <span class="op">=</span> <span class="st">"Set2"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="http://corybrunson.github.io/ggalluvial/reference/geom_flow.html" class="external-link">geom_flow</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"alluvium"</span>, lode.guidance <span class="op">=</span> <span class="st">"frontback"</span>,</span>
-<span>              color <span class="op">=</span> <span class="st">"darkgray"</span><span class="op">)</span> <span class="op">+</span><span class="fu"><a href="http://corybrunson.github.io/ggalluvial/reference/geom_stratum.html" class="external-link">geom_stratum</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"number of subjects"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Distribution of "</span>, <span class="va">var_name</span>, <span class="st">" across clusters"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+plot every item (variable) separately with
+<code>plot_alluvial</code>.</p>
 <p>Questionnaire A:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">original_data</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^questionnaire_A"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">original_data</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="op">~</span><span class="fu">plot_alluvial</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, var_name <span class="op">=</span> <span class="va">.x</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-1.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-2.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-3.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-5.png" width="576"></p>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/plot_alluvial.html">plot_alluvial</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">cluster_model</span>, data <span class="op">=</span> <span class="va">original_data</span>,</span>
+<span>                      variable_name <span class="op">=</span> <span class="va">.x</span>, time_variable <span class="op">=</span> <span class="st">"visit"</span>,</span>
+<span>                      number_of_clusters <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre></div>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-1.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-2.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-3.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-28-5.png" width="576"></p>
 <p>Questionnaire B:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">original_data</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^questionnaire_B"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">original_data</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="op">~</span><span class="fu">plot_alluvial</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, var_name <span class="op">=</span> <span class="va">.x</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-31-1.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-31-2.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-31-3.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-31-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-31-5.png" width="576"></p>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/plot_alluvial.html">plot_alluvial</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">cluster_model</span>, data <span class="op">=</span> <span class="va">original_data</span>,</span>
+<span>                      variable_name <span class="op">=</span> <span class="va">.x</span>, time_variable <span class="op">=</span> <span class="st">"visit"</span>,</span>
+<span>                      number_of_clusters <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre></div>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-29-1.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-29-2.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-29-3.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_alluvial(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_name = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-29-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-29-5.png" width="576"></p>
 <p>Questionnaire C:</p>
 <p>As questionnaire C contains continuous variables, use again a
 spaghetti plot:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># first define plot function similar to the first spaghetti plot function but</span></span>
-<span><span class="co"># suited for the original data</span></span>
-<span><span class="va">plot_spaghetti_2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>,</span>
-<span>                             <span class="va">var_name</span>,</span>
-<span>                             <span class="va">num_clus</span> <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                             <span class="va">scale_arg</span> <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
-<span>  <span class="va">clus_assign</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"assignment_num_clus_"</span>, <span class="va">num_clus</span><span class="op">)</span></span>
-<span>  <span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
-<span>      cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="va">var_name</span><span class="op">)</span>,</span>
-<span>      names_to <span class="op">=</span> <span class="st">"variable"</span></span>
-<span>    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="co"># this step to create a ID per variable is needed, otherwise</span></span>
-<span>    <span class="co"># ggplot can't differentiate between the different variables</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">ID</span>, <span class="st">"_"</span>, <span class="va">variable</span><span class="op">)</span>,</span>
-<span>           <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">visit</span>, <span class="va">variable</span>, <span class="va">ID</span><span class="op">)</span>, <span class="va">as.factor</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">additional_data</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">visit</span>, <span class="va">value</span>, <span class="va">variable</span>, <span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">visit</span>, <span class="va">variable</span>, <span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">value</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>              sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">value</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>, y <span class="op">=</span> <span class="va">value</span>, col <span class="op">=</span> <span class="va">variable</span>, group <span class="op">=</span> <span class="va">ID</span><span class="op">)</span>,</span>
-<span>              alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">additional_data</span>,</span>
-<span>                mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>, y <span class="op">=</span> <span class="va">mean</span>, ymin <span class="op">=</span> <span class="va">mean</span> <span class="op">-</span> <span class="va">sd</span>, ymax <span class="op">=</span> <span class="va">mean</span> <span class="op">+</span> <span class="va">sd</span>,</span>
-<span>                              fill <span class="op">=</span> <span class="va">variable</span>, group <span class="op">=</span> <span class="va">variable</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">additional_data</span>,</span>
-<span>              mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">visit</span>, y <span class="op">=</span> <span class="va">mean</span>, col <span class="op">=</span> <span class="va">variable</span>, group <span class="op">=</span> <span class="va">variable</span><span class="op">)</span>,</span>
-<span>              size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="va">clus_assign</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, scales <span class="op">=</span> <span class="va">scale_arg</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">original_data</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^questionnaire_C"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">original_data</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="op">~</span><span class="fu">plot_spaghetti_2</span><span class="op">(</span>num_clus <span class="op">=</span> <span class="fl">2</span>, data <span class="op">=</span> <span class="va">original_data</span>, var_name <span class="op">=</span> <span class="va">.x</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-1.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-2.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-3.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-33-5.png" width="576"></p>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/plot_spaghetti.html">plot_spaghetti</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">cluster_model</span>, data <span class="op">=</span> <span class="va">original_data</span>,</span>
+<span>                      variable_names <span class="op">=</span> <span class="va">.x</span>, time_variable <span class="op">=</span> <span class="st">"visit"</span>,</span>
+<span>                      number_of_clusters <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_names = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_names = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre></div>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-1.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_names = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-2.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_names = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-3.png" width="576"></p>
+<pre><code><span><span class="co">#&gt; Warning in plot_spaghetti(model = cluster_model, data = original_data,</span></span>
+<span><span class="co">#&gt; variable_names = .x, : The provided data contains already columns with the</span></span>
+<span><span class="co">#&gt; pattern 'assignment_num_clus_'. These columns were removed and replaced by the</span></span>
+<span><span class="co">#&gt; cluster information from the longmixr model.</span></span></code></pre>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-4.png" width="576"><img src="analysis_workflow_files/figure-html/unnamed-chunk-30-5.png" width="576"></p>
 <p>The comparison of the two clusters regarding the original variables
 show differences how some items of the categorical questionnaires and
 some variables of the continuous questionnaires differ between the two
@@ -721,7 +727,7 @@ clusters.</p>
 example cross-sectional variables, can be compared across the found
 clusters. In this case, <code>single_continuous_variable</code> only has
 one value per subject and was left out from the clustering:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">original_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">visit</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">assignment_num_clus_2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -729,7 +735,7 @@ one value per subject and was left out from the clustering:</p>
 <span>             fill <span class="op">=</span> <span class="va">cluster</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-34-1.png" width="576"></p>
+<p><img src="analysis_workflow_files/figure-html/unnamed-chunk-31-1.png" width="576"></p>
 <p>Also the left-out variable shows a different behavior between the two
 clusters.</p>
 </div>

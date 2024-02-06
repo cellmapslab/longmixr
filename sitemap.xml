@@ -40,6 +40,12 @@
     <loc>https://cellmapslab.github.io/longmixr/reference/plot.lcc.html</loc>
   </url>
   <url>
+    <loc>https://cellmapslab.github.io/longmixr/reference/plot_alluvial.html</loc>
+  </url>
+  <url>
+    <loc>https://cellmapslab.github.io/longmixr/reference/plot_spaghetti.html</loc>
+  </url>
+  <url>
     <loc>https://cellmapslab.github.io/longmixr/reference/test_clustering_methods.html</loc>
   </url>
 </urlset>
